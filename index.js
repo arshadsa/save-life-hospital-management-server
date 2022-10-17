@@ -45,6 +45,9 @@ async function run() {
       .db(process.env.DB)
       .collection(process.env.COLLECTION);
     const orderCollection = client.db(process.env.DB).collection("order");
+    const collections = client
+      .db(process.env.DB)
+      .listCollections();
 
     // AUTH
     app.post("/login", async (req, res) => {
@@ -53,6 +56,13 @@ async function run() {
         expiresIn: "1d",
       });
       res.send({ accessToken });
+    });
+
+    app.get("/api/dbs", async (req, res) => {
+      const query = {};
+      const cursor = collections;
+      const dbs = await cursor.toArray();
+      res.send(dbs);
     });
 
     // PRODUCTS API - READ ALL
