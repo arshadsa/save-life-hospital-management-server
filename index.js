@@ -71,6 +71,7 @@ async function run() {
     
     // See all databases
     app.get("/api/dbs", async (req, res) => {
+      res.send("Hi");
       const collections = client.db(process.env.DB).listCollections();
       const cursor = collections;
       const dbs = await cursor.toArray()

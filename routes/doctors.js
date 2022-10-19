@@ -1,6 +1,7 @@
 // routes/doctor.js routing file
 "use strict";
 const express = require("express");
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 let router = express.Router();
