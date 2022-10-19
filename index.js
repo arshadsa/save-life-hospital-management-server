@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000;
 const doctors = require("./routes/doctors");
 const pharmacy = require("./routes/pharmacy");
 const lab = require("./routes/lab");
-
+const websitedoctors = require("./routes/websitedoctors");
 const app = express();
 
 // middlewares
@@ -17,6 +17,7 @@ app.use(express.json());
 //use the doctor.js file to handle
 //endpoints that start with /doctors
 app.use("/doctors", doctors);
+app.use("/websitedoctors", websitedoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
 
