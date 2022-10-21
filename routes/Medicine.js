@@ -7,7 +7,7 @@ let router = express.Router();
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.k6jd9d0.mongodb.net/${process.env.DB}`;
 
-console.log(uri);
+console.log(uri  , 'medicine');
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -15,22 +15,25 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-router.use(function(req, res, next) {
-  console.log(req.url, "@", Date.now());
-  next();
-});
+// router.use(function(req, res, next) {
+//   console.log(req.url, "@", Date.now());
+//   next();
+// });
 
 async function run(){
   try{
     await client.connect();
     router
       .route("/")
+      // /products get from database
       .get(async(req, res) => {
+        console.log('data get ')
         ///medicine
         const medicineFacilityCollection = client.db(process.env.DB).collection('medicine');
         const query = {};
         const cursor = medicineFacilityCollection.find(query);
         const medicine = await cursor.toArray();
+        console.log(medicine , 'dta')
         res.send(medicine);
       })
       .post(async(req, res) => {
@@ -40,17 +43,26 @@ async function run(){
         res.send(result);
       });
 
+      // get products id wise
     router
-      .route("/:id")
+      .route("medicine/:id")
       .get(async(req, res) => {
-        const id = req.params.id;
+        // const id = req.params.id;
+        // const medicineFacilityCollection = client.db(process.env.DB).collection('medicine');
+        // const query = {};
+        // const cursor = medicineFacilityCollection.find(query);
+        // let medicineFacility = await cursor.toArray();
+        // medicineFacility = await medicineFacility.filter((medicineFacility) => medicineFacility._id == id);
+        // res.send(medicineFacility);
         const medicineFacilityCollection = client.db(process.env.DB).collection('medicine');
-        const query = {};
-        const cursor = medicineFacilityCollection.find(query);
-        let medicineFacility = await cursor.toArray();
-        medicineFacility = await medicineFacility.filter((medicineFacility) => medicineFacility._id == id);
-        res.send(medicineFacility);
+        const id = req.params.id
+        console.log(id, "id")
+        const query = {_id:ObjectId(id)}
+        const finalresut = await medicineFacilityCollection.findOne(query)
+        console.log(finalresut ,"id wise get " )
+        res.send(finalresut)
       })
+      
       .post(async(req, res) => {
         const id = req.params.id;
         console.log(id);
