@@ -8,6 +8,7 @@ const doctors = require("./routes/doctors");
 const pharmacy = require("./routes/pharmacy");
 const lab = require("./routes/lab");
 const websitedoctors = require("./routes/websitedoctors");
+const medicine = require("./routes/Medicine")
 const blogs = require("./routes/blogs");
 const app = express();
 
@@ -22,6 +23,7 @@ app.use("/websitedoctors", websitedoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
 app.use("/blogs", blogs);
+app.use("/medicine" ,medicine  )
 
 
 
