@@ -23,8 +23,6 @@ app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
 app.use("/blogs", blogs);
 
-
-
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {

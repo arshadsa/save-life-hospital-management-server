@@ -12,4 +12,4 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-module.exports = {express, ObjectId, router, uri, client}
+module.exports = {ObjectId, router, uri, client}
