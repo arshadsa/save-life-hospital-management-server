@@ -15,7 +15,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-//use the doctor.js file to handle
+//use the doctor.js file to 
 //endpoints that start with /doctors
 app.use("/doctors", doctors);
 app.use("/websitedoctors", websitedoctors);
