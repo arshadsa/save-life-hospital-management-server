@@ -10,6 +10,11 @@ const lab = require("./routes/lab");
 const websitedoctors = require("./routes/websitedoctors");
 const medicine = require("./routes/Medicine")
 const blogs = require("./routes/blogs");
+const booking = require("./routes/booking");
+const hospitaldoctors = require("./routes/hospitaldoctors");
+const news = require("./routes/news");
+const hospitaldoctorsbooking = require("./routes/hospitaldoctorsbooking")
+
 const app = express();
 
 // middlewares
@@ -20,10 +25,20 @@ app.use(express.json());
 //endpoints that start with /doctors
 app.use("/doctors", doctors);
 app.use("/websitedoctors", websitedoctors);
+app.use("/websitedoctors/:id", websitedoctors);
+app.use("/hospitaldoctors", hospitaldoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
 app.use("/blogs", blogs);
+
+app.use("/bookingdoctors", booking);
+app.use("/news", news);
+app.use("/hospitaldoctorsbooking", hospitaldoctorsbooking);
+
 app.use("/medicine" ,medicine  )
+
+
+
 
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
