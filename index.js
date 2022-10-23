@@ -8,6 +8,7 @@ const doctors = require("./routes/doctors");
 const pharmacy = require("./routes/pharmacy");
 const lab = require("./routes/lab");
 const websitedoctors = require("./routes/websitedoctors");
+const medicine = require("./routes/Medicine")
 const blogs = require("./routes/blogs");
 const app = express();
 
@@ -22,6 +23,7 @@ app.use("/websitedoctors", websitedoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
 app.use("/blogs", blogs);
+app.use("/medicine" ,medicine  )
 
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -56,7 +58,7 @@ async function run() {
     // const productsCollection = client
     //   .db(process.env.DB)
     //   .collection(process.env.COLLECTION);
-    // const orderCollection = client.db(process.env.DB).collection("order");
+    // const usersCollection = client.db(process.env.DB).collection("users");
 
     // AUTH
     app.post("/login", async (req, res) => {
@@ -66,7 +68,54 @@ async function run() {
       });
       res.send({ accessToken });
     });
-    
+    // All user post to a Database
+    app.post("/api/users", async (req, res) => {
+      const user = req.body
+      const usersCollection = client.db(process.env.DB).collection("users");
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    })
+    // Search for a specific user from the DB
+
+    app.get('/api/user', async (req, res) => {
+      const email = req.query.email;
+      console.log(email)
+      const query = { email: email };
+      const usersCollection = client.db(process.env.DB).collection("users");
+      const user = await usersCollection.findOne(query);
+      console.log(user);
+      if (user === null) {
+        res.send({ "text": "No user Found" })
+      } else {
+        res.send(user);
+      }
+
+    })
+    // see all User from the DB
+    app.get("/api/allUsers", async (req, res) => {
+      const query = {}
+      const usersCollection = client.db(process.env.DB).collection("users");
+      const cursor = usersCollection.find(query);
+      const users = await cursor.toArray();
+      res.send(users);
+    })
+    // Search for specific user using ID
+
+    app.put('/api/allUsers', async (req, res) => {
+      const updatedStatus = req.body;
+      const email = req.query.email
+      const usersCollection = client.db(process.env.DB).collection("users");
+      const filter = { email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: { role: updatedStatus?.role }
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    })
+
+
+
     // See all databases
     app.get("/api/dbs", async (req, res) => {
       const collections = client.db(process.env.DB).listCollections();
@@ -84,7 +133,7 @@ async function run() {
       const doctors = await cursor.toArray();
       res.send(doctors);
     });
-    
+
     // See individual doctor
     app.get("/api/doctors/:id", async (req, res) => {
       const id = req.params.id;
@@ -112,8 +161,8 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const doctorsCollection = client.db(process.env.DB).collection('doctors');
       let doctor = await doctorsCollection.findOne(query);
-      console.log(doctor);      
-      doctor = {...doctor, ...req.body};
+      console.log(doctor);
+      doctor = { ...doctor, ...req.body };
       const result = await doctorsCollection.updateOne(
         { _id: ObjectId(id) },
         { $set: doctor }
@@ -136,7 +185,7 @@ async function run() {
       const id = req.params.id;
       const medicinesCollection = client.db(process.env.DB).collection('medicine');
       const query = {};
-      const cursor =medicinesCollection.find(query);
+      const cursor = medicinesCollection.find(query);
       let medicine = await cursor.toArray();
       medicine = await medicine.filter((medicine) => medicine._id == id);
       res.send(medicine);
@@ -158,8 +207,8 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const medicinesCollection = client.db(process.env.DB).collection('medicine');
       let medicine = await medicinesCollection.findOne(query);
-      console.log(medicine);      
-      medicine = {...medicine, ...req.body};
+      console.log(medicine);
+      medicine = { ...medicine, ...req.body };
       const result = await medicinesCollection.updateOne(
         { _id: ObjectId(id) },
         { $set: medicine }
@@ -222,10 +271,9 @@ async function run() {
       } else if (req.body.newQuantity) product.quantity = req.body.newQuantity;
       else if (req.body.addQuantity)
         product.quantity = product.quantity + req.body.addQuantity;
-      else if(req.body.edititem)
-        {
-            product = {...product, ...req.body}
-        }
+      else if (req.body.edititem) {
+        product = { ...product, ...req.body }
+      }
 
       const result = await productsCollection.updateOne(
         { _id: ObjectId(id) },
@@ -266,7 +314,7 @@ async function run() {
       const result = await orderCollection.insertOne(order);
       res.send(result);
     });
-  } catch(error) {
+  } catch (error) {
     res.send(error);
   }
 }
