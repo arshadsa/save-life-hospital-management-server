@@ -9,6 +9,8 @@ const pharmacy = require("./routes/pharmacy");
 const lab = require("./routes/lab");
 const websitedoctors = require("./routes/websitedoctors");
 const blogs = require("./routes/blogs");
+const booking = require ("./routes/booking");
+const news = require ("./routes/news");
 const app = express();
 
 // middlewares
@@ -19,9 +21,12 @@ app.use(express.json());
 //endpoints that start with /doctors
 app.use("/doctors", doctors);
 app.use("/websitedoctors", websitedoctors);
+app.use("/websitedoctors/:id", websitedoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
 app.use("/blogs", blogs);
+app.use("/bookingdoctors", booking);
+app.use("/news", news);
 
 
 
