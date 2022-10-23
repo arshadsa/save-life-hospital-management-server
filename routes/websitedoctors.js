@@ -7,7 +7,7 @@ let router = express.Router();
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.k6jd9d0.mongodb.net/${process.env.DB}`;
 
-console.log(uri);
+
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -15,10 +15,10 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-router.use(function(req, res, next) {
-  console.log(req.url, "@", Date.now());
-  next();
-});
+// router.use(function(req, res, next) {
+//   console.log(req.url, "@", Date.now());
+//   ;
+// });
 
 async function run(){
   try{
@@ -26,6 +26,7 @@ async function run(){
     router
       .route("/")
       .get(async(req, res) => {
+        console.log("hello from websitedoctorsaa")
         ///doctors
         const websitedoctorsCollection = client.db(process.env.DB).collection('websitedoctors');
         const query = {};
@@ -45,11 +46,19 @@ async function run(){
       .route("/:id")
       .get(async(req, res) => {
         const id = req.params.id;
+
         const websitedoctorsCollection = client.db(process.env.DB).collection('websitedoctors');
-        const query = {_id:ObjectId(id)};
-        const doctor = await websitedoctorsCollection.findOne(query);
+        const query1 = {_id:ObjectId(id)};
+        const doctor1 = await websitedoctorsCollection.findOne(query1);
        
-        res.json(doctor);
+        res.json(doctor1);
+        const doctorsCollection = client.db(process.env.DB).collection('websitedoctors');
+        const query = {};
+        const cursor = doctorsCollection.find(query);
+        let doctor = await cursor.toArray();
+        doctor = await doctor1.filter((doctor1) => doctor1._id == id);
+        res.send(doctor);
+
       })
       .post(async(req, res) => {
         const id = req.params.id;
