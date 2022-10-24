@@ -30,6 +30,15 @@ async function run() {
       res.send(specialities);
     });
 
+    router.route("/specialitiesDef").get(async (req, res) => {
+      const specialityDefCollection = client.db(process.env.DB).collection("specialityDefinition");
+      const query = {};
+      const cursor = specialityDefCollection.find(query);
+      const specialityDef = await cursor.toArray();
+      
+      res.send(specialityDef);
+    });
+
     router
       .route("/:id")
       .get(async (req, res) => {
