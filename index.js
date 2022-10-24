@@ -5,6 +5,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const doctors = require("./routes/doctors");
+const doctor = require("./routes/doctor");
 const pharmacy = require("./routes/pharmacy");
 const lab = require("./routes/lab");
 const websitedoctors = require("./routes/websitedoctors");
@@ -24,6 +25,7 @@ app.use(express.json());
 //use the doctor.js file to 
 //endpoints that start with /doctors
 app.use("/doctors", doctors);
+app.use("/doctor", doctor);
 app.use("/websitedoctors", websitedoctors);
 app.use("/websitedoctors/:id", websitedoctors);
 app.use("/hospitaldoctors", hospitaldoctors);

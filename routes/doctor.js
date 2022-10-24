@@ -9,34 +9,16 @@ async function run() {
 
   try {
     await client.connect();
-    router
-      .route("/")
-      .get(async (req, res) => {
-        const query = {};
-        const cursor = doctorsCollection.find(query);
-        const doctors = await cursor.toArray();
-        res.send(doctors);
-      })
-      .post(async (req, res) => {
-        const newDoctor = req.body;
-        console.log(newDoctor);
-        const result = await doctorsCollection.insertOne(newDoctor);
-        res.send(result);
-      });
-
-    router.route("/specialities").get(async (req, res) => {
-      const specialityCollection = client.db(process.env.DB).collection("hospitaldoctors");
-      const specialities = await specialityCollection.distinct("specialization");
-      res.send(specialities);
-    });
-
+    
     router
       .route("/:id")
       .get(async (req, res) => {
+        const id = req.params.id;
         const query = {};
         const cursor = doctorsCollection.find(query);
-        const doctors = await cursor.toArray();
-        res.send(doctors);
+        let doctor = await cursor.toArray();
+        doctor = await doctor.filter((doctor) => doctor._id == id);
+        res.send(doctor);
       })
       .post(async (req, res) => {
         const id = req.params.id;
