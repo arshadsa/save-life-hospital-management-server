@@ -6,25 +6,42 @@ const crypto = require('crypto')
 const KJUR = require('jsrsasign')
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8000;
 const doctors = require("./routes/doctors");
+const doctor = require("./routes/doctor");
 const pharmacy = require("./routes/pharmacy");
 const lab = require("./routes/lab");
 const websitedoctors = require("./routes/websitedoctors");
+const medicine = require("./routes/Medicine")
 const blogs = require("./routes/blogs");
+const booking = require("./routes/booking");
+const hospitaldoctors = require("./routes/hospitaldoctors");
+const news = require("./routes/news");
+const hospitaldoctorsbooking = require("./routes/hospitaldoctorsbooking")
+
 const app = express();
 
 // middlewares
 app.use(cors());
 app.use(express.json());
 
-//use the doctor.js file to handle
+//use the doctor.js file to 
 //endpoints that start with /doctors
 app.use("/doctors", doctors);
+app.use("/doctor", doctor);
 app.use("/websitedoctors", websitedoctors);
+app.use("/websitedoctors/:id", websitedoctors);
+app.use("/hospitaldoctors", hospitaldoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
 app.use("/blogs", blogs);
+
+app.use("/bookingdoctors", booking);
+app.use("/news", news);
+app.use("/hospitaldoctorsbooking", hospitaldoctorsbooking);
+
+app.use("/medicine" ,medicine  )
+
 
 
 
