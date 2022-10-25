@@ -46,12 +46,19 @@ async function run(){
       .route("/:id")
       .get(async(req, res) => {
         const id = req.params.id;
+
+        const websitedoctorsCollection = client.db(process.env.DB).collection('websitedoctors');
+        const query1 = {_id:ObjectId(id)};
+        const doctor1 = await websitedoctorsCollection.findOne(query1);
+       
+        res.json(doctor1);
         const doctorsCollection = client.db(process.env.DB).collection('websitedoctors');
         const query = {};
         const cursor = doctorsCollection.find(query);
         let doctor = await cursor.toArray();
-        doctor = await doctor.filter((doctor) => doctor._id == id);
+        doctor = await doctor1.filter((doctor1) => doctor1._id == id);
         res.send(doctor);
+
       })
       .post(async(req, res) => {
         const id = req.params.id;

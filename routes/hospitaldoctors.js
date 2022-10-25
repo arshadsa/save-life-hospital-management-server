@@ -7,7 +7,7 @@ let router = express.Router();
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.k6jd9d0.mongodb.net/${process.env.DB}`;
 
-
+console.log(uri);
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -26,17 +26,18 @@ async function run(){
     router
       .route("/")
       .get(async(req, res) => {
-        ///lab
-        const labFacilityCollection = client.db(process.env.DB).collection('lab');
+        ///doctors
+        const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
         const query = {};
-        const cursor = labFacilityCollection.find(query);
-        const labFacilitys = await cursor.toArray();
-        res.send(labFacilitys);
+        const cursor = hospitaldoctorsCollection.find(query);
+        const doctors = await cursor.toArray();
+        res.send(doctors);
       })
       .post(async(req, res) => {
-        const newFacility = req.body;
-        const labFacilityCollection = client.db(process.env.DB).collection('lab');
-        const result = await labFacilityCollection.insertOne(newFacility);
+        const newDoctor = req.body;
+        console.log(newDoctor);
+        const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
+        const result = await hospitaldoctorsCollection.insertOne(newDoctor);
         res.send(result);
       });
 
@@ -44,27 +45,26 @@ async function run(){
       .route("/:id")
       .get(async(req, res) => {
         const id = req.params.id;
-        const labFacilityCollection = client.db(process.env.DB).collection('lab');
-        const query = {};
-        const cursor = labFacilityCollection.find(query);
-        let labFacility = await cursor.toArray();
-        labFacility = await labFacility.filter((labFacility) => labFacility._id == id);
-        res.send(labFacility);
+        const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
+        const query = {_id:ObjectId(id)};
+        const doctor = await hospitaldoctorsCollection.findOne(query);
+       
+        res.json(doctor);
       })
       .post(async(req, res) => {
         const id = req.params.id;
         console.log(id);
         console.log(req.body);
         const query = { _id: ObjectId(id) };
-        const labFacilityCollection = client.db(process.env.DB).collection('lab');
-        let labFacility = await labFacilityCollection.findOne(query);
-        console.log(labFacility);      
-        labFacility = {...labFacility, ...req.body};
-        const result = await labFacilityCollection.updateOne(
+        const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
+        let doctor = await hospitaldoctorsCollection.findOne(query);
+        console.log(doctor);      
+        doctor = {...doctor, ...req.body};
+        const result = await hospitaldoctorsCollection.updateOne(
           { _id: ObjectId(id) },
-          { $set: labFacility }
+          { $set: doctor }
         );
-        const newResult = await labFacilityCollection.findOne(query);
+        const newResult = await hospitaldoctorsCollection.findOne(query);
         res.send(newResult);
       });
   }finally{
