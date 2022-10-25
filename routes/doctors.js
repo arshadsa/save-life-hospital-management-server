@@ -27,7 +27,7 @@ async function run() {
     router.route("/specialities").get(async (req, res) => {
       const specialityCollection = client.db(process.env.DB).collection("hospitaldoctors");
       const specialities = await specialityCollection.distinct("specialization");
-      res.send(specialities);
+      await res.send(specialities);
     });
 
     router.route("/specialitiesDef").get(async (req, res) => {
