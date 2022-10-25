@@ -1,6 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const bodyParser = require('body-parser')
+const crypto = require('crypto')
+const KJUR = require('jsrsasign')
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -59,6 +62,52 @@ async function run() {
     //   .db(process.env.DB)
     //   .collection(process.env.COLLECTION);
     // const usersCollection = client.db(process.env.DB).collection("users");
+    // create zoom meeting
+    app.post('/zoom', (req, res) => {
+
+      const iat = Math.round((new Date().getTime() - 30000) / 1000)
+      const exp = iat + 60 * 60 * 2
+
+      const oHeader = { alg: 'HS256', typ: 'JWT' }
+
+      const oPayload = {
+        app_key: process.env.ZOOM_VIDEO_SDK_KEY,
+        tpc: 'testing',
+        role_type: 1,
+        // user_identity: req.body.userIdentity,
+        // session_key: req.body.sessionKey,
+        version: 1,
+        iat: iat,
+        exp: exp,
+        meetingNumber: 1234,
+        userEmail: '',
+        passWord: '1234',
+        leaveUrl: 'http://localhost:3000/zoom-meeting'
+      }
+
+      const sHeader = JSON.stringify(oHeader)
+      const sPayload = JSON.stringify(oPayload)
+      const signature = KJUR.jws.JWS.sign('HS256', sHeader, sPayload, process.env.ZOOM_VIDEO_SDK_SECRET)
+
+      res.json({
+        signature: signature
+      })
+    })
+    // Blood Doner Posting to Database
+    app.post('/bloodDoner', async (req, res) => {
+      const donerInfo = req.body
+      const bloodDonerCollection = client.db(process.env.DB).collection("bloodDoner");
+      const result = await bloodDonerCollection.insertOne(donerInfo);
+      res.send(result);
+    })
+    // Blood Doner List Get
+    app.get('/bloodDonerList', async (req, res) => {
+      const query = {}
+      const bloodDonerCollection = client.db(process.env.DB).collection("bloodDoner");
+      const cursor = bloodDonerCollection.find(query);
+      const doners = await cursor.toArray();
+      res.send(doners);
+    })
 
     // AUTH
     app.post("/login", async (req, res) => {
