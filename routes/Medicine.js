@@ -45,22 +45,23 @@ async function run(){
 
       // get products id wise
     router
-      .route("medicine/:id")
+      .route("/:id")
       .get(async(req, res) => {
-        // const id = req.params.id;
-        // const medicineFacilityCollection = client.db(process.env.DB).collection('medicine');
-        // const query = {};
-        // const cursor = medicineFacilityCollection.find(query);
-        // let medicineFacility = await cursor.toArray();
-        // medicineFacility = await medicineFacility.filter((medicineFacility) => medicineFacility._id == id);
-        // res.send(medicineFacility);
+        const id = req.params.id;
         const medicineFacilityCollection = client.db(process.env.DB).collection('medicine');
-        const id = req.params.id
-        console.log(id, "id")
-        const query = {_id:ObjectId(id)}
-        const finalresut = await medicineFacilityCollection.findOne(query)
-        console.log(finalresut ,"id wise get " )
-        res.send(finalresut)
+        const query = {};
+        const cursor = medicineFacilityCollection.find(query);
+        let medicineFacility = await cursor.toArray();
+        medicineFacility = await medicineFacility.filter((medicineFacility) => medicineFacility._id == id);
+        res.send(medicineFacility);
+        // const medicineFacilityCollection = client.db(process.env.DB).collection('medicine');
+        // const id = req.params.id
+        // console.log(id, "id")
+        // const query = {_id:ObjectId(id)}
+        // console.log(query)
+        // const finalresut = await medicineFacilityCollection.findOne(query)
+        // console.log(finalresut ,"id wise get " )
+        // res.send(finalresut)
       })
       
       .post(async(req, res) => {
