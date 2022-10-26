@@ -6,7 +6,7 @@ const crypto = require('crypto')
 const KJUR = require('jsrsasign')
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 5000;
 const doctors = require("./routes/doctors");
 const doctor = require("./routes/doctor");
 const pharmacy = require("./routes/pharmacy");
@@ -40,8 +40,30 @@ app.use("/bookingdoctors", booking);
 app.use("/news", news);
 app.use("/hospitaldoctorsbooking", hospitaldoctorsbooking);
 
-app.use("/medicine" ,medicine  )
+app.use("/medicine", medicine);
+// socket io
+const server = require("http").createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+io.on("connection", (socket) => {
+  socket.emit("me", socket.id);
 
+  socket.on("disconnect", () => {
+    socket.broadcast.emit("callEnded")
+  });
+
+  socket.on("callUser", ({ userToCall, signalData, from, name }) => {
+    io.to(userToCall).emit("callUser", { signal: signalData, from, name });
+  });
+
+  socket.on("answerCall", (data) => {
+    io.to(data.to).emit("callAccepted", data.signal)
+  });
+});
 
 
 
@@ -99,7 +121,7 @@ async function run() {
         meetingNumber: 1234,
         userEmail: '',
         passWord: '1234',
-        leaveUrl: 'http://localhost:3000/zoom-meeting'
+        leaveUrl: 'http://localhost:3000/'
       }
 
       const sHeader = JSON.stringify(oHeader)
