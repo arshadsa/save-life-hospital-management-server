@@ -3,10 +3,10 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bodyParser = require('body-parser')
 const crypto = require('crypto')
-const KJUR = require('jsrsasign')
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 5000;
 const doctors = require("./routes/doctors");
 const doctor = require("./routes/doctor");
 const pharmacy = require("./routes/pharmacy");
@@ -29,8 +29,6 @@ app.use(express.json());
 //endpoints that start with /doctors
 app.use("/doctors", doctors);
 app.use("/doctor", doctor);
-app.use("/websitedoctors", websitedoctors);
-app.use("/websitedoctors/:id", websitedoctors);
 app.use("/hospitaldoctors", hospitaldoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
