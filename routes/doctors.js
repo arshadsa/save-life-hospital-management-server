@@ -21,12 +21,13 @@ async function run() {
         const newDoctor = req.body;
         console.log(newDoctor);
         const result = await doctorsCollection.insertOne(newDoctor);
-        res.send(result);
+        await res.send(result);
       });
-
+      
     router.route("/specialities").get(async (req, res) => {
       const specialityCollection = client.db(process.env.DB).collection("hospitaldoctors");
       const specialities = await specialityCollection.distinct("specialization");
+      
       await res.send(specialities);
     });
 
@@ -61,6 +62,12 @@ async function run() {
         );
         const newResult = await doctorsCollection.findOne(query);
         res.send(newResult);
+      })
+      .delete(async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await doctorsCollection.deleteOne(query);
+        res.send(result);
       });
   } finally {
   }
