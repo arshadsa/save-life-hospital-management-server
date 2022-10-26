@@ -5,7 +5,7 @@ const {express, ObjectId, router, client}= require('./CommonImports');
 
 async function run() {
   ///doctors
-  const doctorsCollection = client.db(process.env.DB).collection("doctors");
+  const doctorsCollection = client.db(process.env.DB).collection("hospitaldoctors");
 
   try {
     await client.connect();
@@ -25,19 +25,27 @@ async function run() {
       });
 
     router.route("/specialities").get(async (req, res) => {
-      const specialities = await doctorsCollection.distinct("speciality");
+      const specialityCollection = client.db(process.env.DB).collection("hospitaldoctors");
+      const specialities = await specialityCollection.distinct("specialization");
       res.send(specialities);
+    });
+
+    router.route("/specialitiesDef").get(async (req, res) => {
+      const specialityDefCollection = client.db(process.env.DB).collection("specialityDefinition");
+      const query = {};
+      const cursor = specialityDefCollection.find(query);
+      const specialityDef = await cursor.toArray();
+      
+      res.send(specialityDef);
     });
 
     router
       .route("/:id")
       .get(async (req, res) => {
-        const id = req.params.id;
         const query = {};
         const cursor = doctorsCollection.find(query);
-        let doctor = await cursor.toArray();
-        doctor = await doctor.filter((doctor) => doctor._id == id);
-        res.send(doctor);
+        const doctors = await cursor.toArray();
+        res.send(doctors);
       })
       .post(async (req, res) => {
         const id = req.params.id;
