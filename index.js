@@ -1,6 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const bodyParser = require('body-parser')
+const crypto = require('crypto')
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -8,14 +11,14 @@ const doctors = require("./routes/doctors");
 const doctor = require("./routes/doctor");
 const pharmacy = require("./routes/pharmacy");
 const lab = require("./routes/lab");
-const websitedoctors = require("./routes/websitedoctors");
+
 const medicine = require("./routes/Medicine")
 const blogs = require("./routes/blogs");
 const booking = require("./routes/booking");
 const hospitaldoctors = require("./routes/hospitaldoctors");
 const news = require("./routes/news");
 const hospitaldoctorsbooking = require("./routes/hospitaldoctorsbooking")
-
+// const available = require("./routes/available");
 const app = express();
 
 // middlewares
@@ -26,8 +29,6 @@ app.use(express.json());
 //endpoints that start with /doctors
 app.use("/doctors", doctors);
 app.use("/doctor", doctor);
-app.use("/websitedoctors", websitedoctors);
-app.use("/websitedoctors/:id", websitedoctors);
 app.use("/hospitaldoctors", hospitaldoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
@@ -74,6 +75,78 @@ async function run() {
     //   .db(process.env.DB)
     //   .collection(process.env.COLLECTION);
     // const usersCollection = client.db(process.env.DB).collection("users");
+    // create zoom meeting
+    app.post('/zoom', (req, res) => {
+
+      const iat = Math.round((new Date().getTime() - 30000) / 1000)
+      const exp = iat + 60 * 60 * 2
+
+      const oHeader = { alg: 'HS256', typ: 'JWT' }
+
+      const oPayload = {
+        app_key: process.env.ZOOM_VIDEO_SDK_KEY,
+        tpc: 'testing',
+        role_type: 1,
+        // user_identity: req.body.userIdentity,
+        // session_key: req.body.sessionKey,
+        version: 1,
+        iat: iat,
+        exp: exp,
+        meetingNumber: 1234,
+        userEmail: '',
+        passWord: '1234',
+        leaveUrl: 'http://localhost:3000/zoom-meeting'
+      }
+
+      const sHeader = JSON.stringify(oHeader)
+      const sPayload = JSON.stringify(oPayload)
+      const signature = KJUR.jws.JWS.sign('HS256', sHeader, sPayload, process.env.ZOOM_VIDEO_SDK_SECRET)
+
+      res.json({
+        signature: signature
+      })
+    })
+
+// booking appointment by anik 
+
+app.get('/available', async(req,res) => {
+  const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
+   
+  const date = req.query.date || 'Oct 26, 2022';
+  // step 1 
+  const services = await hospitaldoctorsCollection.find().toArray();
+  // step 2 
+  const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+  const query = {date:date};
+  const bookings = await hospitaldoctorsbookingCollection.find(query).toArray();
+  // step 3 
+  services.forEach(service =>{
+    const servicebookings = bookings.filter(b=>b.treatment === service.name);
+    const booked = servicebookings.map(s=> s.slot);
+    const available = service.slots.filter(s=>!booked.includes(s));
+    service.available = available;
+    // service.booked = booked;
+
+  })
+  res.send(services);
+})
+
+
+    // Blood Doner Posting to Database
+    app.post('/bloodDoner', async (req, res) => {
+      const donerInfo = req.body
+      const bloodDonerCollection = client.db(process.env.DB).collection("bloodDoner");
+      const result = await bloodDonerCollection.insertOne(donerInfo);
+      res.send(result);
+    })
+    // Blood Doner List Get
+    app.get('/bloodDonerList', async (req, res) => {
+      const query = {}
+      const bloodDonerCollection = client.db(process.env.DB).collection("bloodDoner");
+      const cursor = bloodDonerCollection.find(query);
+      const doners = await cursor.toArray();
+      res.send(doners);
+    })
 
     // AUTH
     app.post("/login", async (req, res) => {
