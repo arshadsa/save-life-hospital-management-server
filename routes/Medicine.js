@@ -36,12 +36,18 @@ async function run(){
         console.log(medicine , 'dta')
         res.send(medicine);
       })
+
+      // send medicine in database using this route
       .post(async(req, res) => {
         const newFacility = req.body;
         const medicineFacilityCollection = client.db(process.env.DB).collection('medicine');
         const result = await medicineFacilityCollection.insertOne(newFacility);
         res.send(result);
       });
+
+
+      // order details
+     
 
       // get products id wise
     router

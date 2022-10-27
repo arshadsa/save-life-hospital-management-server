@@ -3,7 +3,7 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 5000;
 const doctors = require("./routes/doctors");
 const doctor = require("./routes/doctor");
 const pharmacy = require("./routes/pharmacy");
@@ -32,11 +32,9 @@ app.use("/hospitaldoctors", hospitaldoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
 app.use("/blogs", blogs);
-
 app.use("/bookingdoctors", booking);
 app.use("/news", news);
 app.use("/hospitaldoctorsbooking", hospitaldoctorsbooking);
-
 app.use("/medicine" ,medicine  )
 
 
@@ -339,7 +337,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Running Products Server");
+  res.send("Running Products Serverss");
 });
 
 app.get("/hero", (req, res) => {
