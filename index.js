@@ -260,50 +260,50 @@ app.get('/available', async(req,res) => {
     });
 
     // See all meds in Pharmacy
-    app.get("/api/medicines", async (req, res) => {
-      const medicineCollection = client.db(process.env.DB).collection('medicine');
-      const query = {};
-      const cursor = doctorsCollection.find(query);
-      const medicines = await cursor.toArray();
-      res.send(medicines);
-    });
+    // app.get("/api/medicines", async (req, res) => {
+    //   const medicineCollection = client.db(process.env.DB).collection('medicine');
+    //   const query = {};
+    //   const cursor = doctorsCollection.find(query);
+    //   const medicines = await cursor.toArray();
+    //   res.send(medicines);
+    // });
 
-    // See individual medicine
-    app.get("/api/medicine/:id", async (req, res) => {
-      const id = req.params.id;
-      const medicinesCollection = client.db(process.env.DB).collection('medicine');
-      const query = {};
-      const cursor = medicinesCollection.find(query);
-      let medicine = await cursor.toArray();
-      medicine = await medicine.filter((medicine) => medicine._id == id);
-      res.send(medicine);
-    });
+    // // See individual medicine
+    // app.get("/api/medicine/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const medicinesCollection = client.db(process.env.DB).collection('medicine');
+    //   const query = {};
+    //   const cursor = medicinesCollection.find(query);
+    //   let medicine = await cursor.toArray();
+    //   medicine = await medicine.filter((medicine) => medicine._id == id);
+    //   res.send(medicine);
+    // });
 
-    // Add new medicine
-    app.post("/api/medicines", async (req, res) => {
-      const newMedicine = req.body;
-      const medicinesCollection = client.db(process.env.DB).collection('medicine');
-      const result = await medicinesCollection.insertOne(newMedicines);
-      res.send(result);
-    });
+    // // Add new medicine
+    // app.post("/api/medicines", async (req, res) => {
+    //   const newMedicine = req.body;
+    //   const medicinesCollection = client.db(process.env.DB).collection('medicine');
+    //   const result = await medicinesCollection.insertOne(newMedicines);
+    //   res.send(result);
+    // });
 
-    // UPDATE medicine Info
-    app.post("/api/medicines/:id", async (req, res) => {
-      const id = req.params.id;
-      console.log(id);
-      console.log(req.body);
-      const query = { _id: ObjectId(id) };
-      const medicinesCollection = client.db(process.env.DB).collection('medicine');
-      let medicine = await medicinesCollection.findOne(query);
-      console.log(medicine);
-      medicine = { ...medicine, ...req.body };
-      const result = await medicinesCollection.updateOne(
-        { _id: ObjectId(id) },
-        { $set: medicine }
-      );
-      const newResult = await medicinesCollection.findOne(query);
-      res.send(newResult);
-    });
+    // // UPDATE medicine Info
+    // app.post("/api/medicines/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   console.log(id);
+    //   console.log(req.body);
+    //   const query = { _id: ObjectId(id) };
+    //   const medicinesCollection = client.db(process.env.DB).collection('medicine');
+    //   let medicine = await medicinesCollection.findOne(query);
+    //   console.log(medicine);
+    //   medicine = { ...medicine, ...req.body };
+    //   const result = await medicinesCollection.updateOne(
+    //     { _id: ObjectId(id) },
+    //     { $set: medicine }
+    //   );
+    //   const newResult = await medicinesCollection.findOne(query);
+    //   res.send(newResult);
+    // });
 
 
 
