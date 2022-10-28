@@ -3,10 +3,10 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bodyParser = require('body-parser')
 const crypto = require('crypto')
-const KJUR = require('jsrsasign')
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 5000;
 const doctors = require("./routes/doctors");
 const doctor = require("./routes/doctor");
 const pharmacy = require("./routes/pharmacy");
@@ -18,7 +18,7 @@ const booking = require("./routes/booking");
 const hospitaldoctors = require("./routes/hospitaldoctors");
 const news = require("./routes/news");
 const hospitaldoctorsbooking = require("./routes/hospitaldoctorsbooking")
-
+// const available = require("./routes/available");
 const app = express();
 
 // middlewares
@@ -29,17 +29,16 @@ app.use(express.json());
 //endpoints that start with /doctors
 app.use("/doctors", doctors);
 app.use("/doctor", doctor);
-app.use("/websitedoctors", websitedoctors);
-app.use("/websitedoctors/:id", websitedoctors);
 app.use("/hospitaldoctors", hospitaldoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
 app.use("/blogs", blogs);
-
 app.use("/bookingdoctors", booking);
 app.use("/news", news);
 app.use("/hospitaldoctorsbooking", hospitaldoctorsbooking);
-app.use("/medicine" ,medicine  )
+app.use("/medicine" , medicine);
+// app.use("/available" , available);
+
 
 
 
@@ -109,6 +108,32 @@ async function run() {
         signature: signature
       })
     })
+
+// booking appointment by anik 
+
+app.get('/available', async(req,res) => {
+  const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
+   
+  const date = req.query.date || 'Oct 26, 2022';
+  // step 1 
+  const services = await hospitaldoctorsCollection.find().toArray();
+  // step 2 
+  const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+  const query = {date:date};
+  const bookings = await hospitaldoctorsbookingCollection.find(query).toArray();
+  // step 3 
+  services.forEach(service =>{
+    const servicebookings = bookings.filter(b=>b.treatment === service.name);
+    const booked = servicebookings.map(s=> s.slot);
+    const available = service.slots.filter(s=>!booked.includes(s));
+    service.available = available;
+    // service.booked = booked;
+
+  })
+  res.send(services);
+})
+
+
     // Blood Doner Posting to Database
     app.post('/bloodDoner', async (req, res) => {
       const donerInfo = req.body
