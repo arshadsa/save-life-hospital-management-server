@@ -73,13 +73,8 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    // const productsCollection = client
-    //   .db(process.env.DB)
-    //   .collection(process.env.COLLECTION);
-    // const usersCollection = client.db(process.env.DB).collection("users");
-    // create zoom meeting
+    
     app.post('/zoom', (req, res) => {
-
       const iat = Math.round((new Date().getTime() - 30000) / 1000)
       const exp = iat + 60 * 60 * 2
 
@@ -353,7 +348,6 @@ app.get('/available', async(req,res) => {
       const query = { _id: ObjectId(id) };
       let product = await productsCollection.findOne(query);
       console.log(product);
-
       if (req.body.increaseByOne) product.quantity = product.quantity + 1;
       else if (req.body.decreaseByOne) {
         product.quantity = product.quantity - 1;
@@ -381,22 +375,6 @@ app.get('/available', async(req,res) => {
       const result = await productsCollection.deleteOne(query);
       res.send(result);
     });
-
-    // // Order Collection API
-
-    // app.get('/order', verifyJWT, async (req, res) => {
-    //     const decodedEmail = req.decoded.email;
-    //     const email = req.query.email;
-    //     if (email === decodedEmail) {
-    //         const query = { email: email };
-    //         const cursor = orderCollection.find(query);
-    //         const orders = await cursor.toArray();
-    //         res.send(orders);
-    //     }
-    //     else{
-    //         res.status(403).send({message: 'forbidden access'})
-    //     }
-    // })
 
     //CREATE
     app.post("/order", async (req, res) => {
