@@ -41,6 +41,7 @@ app.use("/blogs", blogs);
 app.use("/bookingdoctors", booking);
 app.use("/news", news);
 app.use("/hospitaldoctorsbooking", hospitaldoctorsbooking);
+
 app.use("/medicine" , medicine);
 // app.use("/available" , available);
 
@@ -110,6 +111,9 @@ async function run() {
     })
 
 // booking appointment by anik 
+
+
+
 
 app.get('/available', async(req,res) => {
   const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
