@@ -20,7 +20,7 @@ const news = require("./routes/news");
 const hospitaldoctorsbooking = require("./routes/hospitaldoctorsbooking")
 
 const app = express();
-
+// 
 // middlewares
 app.use(cors());
 app.use(express.json());
@@ -101,37 +101,6 @@ async function run() {
     //   .db(process.env.DB)
     //   .collection(process.env.COLLECTION);
     // const usersCollection = client.db(process.env.DB).collection("users");
-    // create zoom meeting
-    app.post('/zoom', (req, res) => {
-
-      const iat = Math.round((new Date().getTime() - 30000) / 1000)
-      const exp = iat + 60 * 60 * 2
-
-      const oHeader = { alg: 'HS256', typ: 'JWT' }
-
-      const oPayload = {
-        app_key: process.env.ZOOM_VIDEO_SDK_KEY,
-        tpc: 'testing',
-        role_type: 1,
-        // user_identity: req.body.userIdentity,
-        // session_key: req.body.sessionKey,
-        version: 1,
-        iat: iat,
-        exp: exp,
-        meetingNumber: 1234,
-        userEmail: '',
-        passWord: '1234',
-        leaveUrl: 'http://localhost:3000/'
-      }
-
-      const sHeader = JSON.stringify(oHeader)
-      const sPayload = JSON.stringify(oPayload)
-      const signature = KJUR.jws.JWS.sign('HS256', sHeader, sPayload, process.env.ZOOM_VIDEO_SDK_SECRET)
-
-      res.json({
-        signature: signature
-      })
-    })
     // Blood Doner Posting to Database
     app.post('/bloodDoner', async (req, res) => {
       const donerInfo = req.body
@@ -283,8 +252,8 @@ async function run() {
     app.post("/api/medicines", async (req, res) => {
       const newMedicine = req.body;
       const medicinesCollection = client.db(process.env.DB).collection('medicine');
-      const result = await medicinesCollection.insertOne(newMedicines);
-      res.send(result);
+      const result = await medicinesCollection.insertOne(newMedicine);
+      res.send({ result });
     });
 
     // UPDATE medicine Info
@@ -420,3 +389,5 @@ app.get("/hero", (req, res) => {
 app.listen(port, () => {
   console.log("Listening to port", port);
 });
+
+server.listen(8000, () => console.log("server is running on port 8000"))
