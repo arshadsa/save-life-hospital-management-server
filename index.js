@@ -9,6 +9,9 @@ require("dotenv").config();
 const port = process.env.PORT || 5000;
 const doctors = require("./routes/doctors");
 const doctor = require("./routes/doctor");
+const nurse = require('./routes/nurse')
+const staff = require('./routes/staff')
+
 const pharmacy = require("./routes/pharmacy");
 const lab = require("./routes/lab");
 
@@ -29,6 +32,8 @@ app.use(express.json());
 //endpoints that start with /doctors
 app.use("/doctors", doctors);
 app.use("/doctor", doctor);
+app.use("/nurse", nurse);
+app.use("/staff", staff);
 app.use("/hospitaldoctors", hospitaldoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
