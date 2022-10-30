@@ -340,7 +340,7 @@ app.get('/available', async(req,res) => {
     app.get("/api/medicines", async (req, res) => {
       const medicineCollection = client.db(process.env.DB).collection('medicine');
       const query = {};
-      const cursor = doctorsCollection.find(query);
+      const cursor = medicineCollection.find(query);
       const medicines = await cursor.toArray();
       res.send(medicines);
     });
