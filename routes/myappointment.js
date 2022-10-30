@@ -28,19 +28,19 @@ async function run(){
     await client.connect();
     router
       .route("/")
-      // .get(async(req, res) => {
-      //   ///doctors
-      //   const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
-      //   const query = {};
-      //   const cursor = hospitaldoctorsbookingCollection.find(query);
-      //   const doctors = await cursor.toArray();
-      //   res.send(doctors);
-      // })
+    //   .get(async(req, res) => {
+    //     ///doctors
+    //     const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+    //     const query = {};
+    //     const cursor = hospitaldoctorsbookingCollection.find(query);
+    //     const doctors = await cursor.toArray();
+    //     res.send(doctors);
+    //   })
 
 
       .get(async(req, res) => {
         ///doctors
-        const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+        const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('myappointment');
         const patient = req.query.patient;
         const query = {patient:patient};
         const bookings = await hospitaldoctorsbookingCollection.find(query).toArray();

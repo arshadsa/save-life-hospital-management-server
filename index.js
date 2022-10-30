@@ -3,22 +3,25 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bodyParser = require('body-parser')
 const crypto = require('crypto')
-const KJUR = require('jsrsasign')
+
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 const doctors = require("./routes/doctors");
 const doctor = require("./routes/doctor");
+const nurse = require('./routes/nurse')
+const staff = require('./routes/staff')
+
 const pharmacy = require("./routes/pharmacy");
 const lab = require("./routes/lab");
-const websitedoctors = require("./routes/websitedoctors");
+
 const medicine = require("./routes/Medicine")
 const blogs = require("./routes/blogs");
 const booking = require("./routes/booking");
 const hospitaldoctors = require("./routes/hospitaldoctors");
 const news = require("./routes/news");
 const hospitaldoctorsbooking = require("./routes/hospitaldoctorsbooking")
-
+// const available = require("./routes/available");
 const app = express();
 // 
 // middlewares
@@ -29,13 +32,12 @@ app.use(express.json());
 //endpoints that start with /doctors
 app.use("/doctors", doctors);
 app.use("/doctor", doctor);
-app.use("/websitedoctors", websitedoctors);
-app.use("/websitedoctors/:id", websitedoctors);
+app.use("/nurse", nurse);
+app.use("/staff", staff);
 app.use("/hospitaldoctors", hospitaldoctors);
 app.use("/pharmacy", pharmacy);
 app.use("/lab", lab);
 app.use("/blogs", blogs);
-
 app.use("/bookingdoctors", booking);
 app.use("/news", news);
 app.use("/hospitaldoctorsbooking", hospitaldoctorsbooking);
@@ -51,6 +53,9 @@ const io = require("socket.io")(server, {
 });
 io.on("connection", (socket) => {
   socket.emit("me", socket.id);
+  app.use("/medicine", medicine);
+  // app.use("/available" , available);
+
 
   socket.on("disconnect", () => {
     socket.broadcast.emit("callEnded")
@@ -320,7 +325,6 @@ async function run() {
       const query = { _id: ObjectId(id) };
       let product = await productsCollection.findOne(query);
       console.log(product);
-
       if (req.body.increaseByOne) product.quantity = product.quantity + 1;
       else if (req.body.decreaseByOne) {
         product.quantity = product.quantity - 1;
@@ -348,22 +352,6 @@ async function run() {
       const result = await productsCollection.deleteOne(query);
       res.send(result);
     });
-
-    // // Order Collection API
-
-    // app.get('/order', verifyJWT, async (req, res) => {
-    //     const decodedEmail = req.decoded.email;
-    //     const email = req.query.email;
-    //     if (email === decodedEmail) {
-    //         const query = { email: email };
-    //         const cursor = orderCollection.find(query);
-    //         const orders = await cursor.toArray();
-    //         res.send(orders);
-    //     }
-    //     else{
-    //         res.status(403).send({message: 'forbidden access'})
-    //     }
-    // })
 
     //CREATE
     app.post("/order", async (req, res) => {
