@@ -43,9 +43,9 @@ async function run(){
       .route("/")
       // .get(async(req, res) => {
       //   ///doctors
-      //   const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+      //   const ambookingCollection = client.db(process.env.DB).collection('ambooking');
       //   const query = {};
-      //   const cursor = hospitaldoctorsbookingCollection.find(query);
+      //   const cursor = ambookingCollection.find(query);
       //   const doctors = await cursor.toArray();
       //   res.send(doctors);
       // })
@@ -53,24 +53,24 @@ async function run(){
 
       .get(async(req, res) => {
         ///doctors
-        const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+        const ambookingCollection = client.db(process.env.DB).collection('ambooking');
         const patient = req.query.patient;
         const query = {patient:patient};
-        const bookings = await hospitaldoctorsbookingCollection.find(query).toArray();
+        const bookings = await ambookingCollection.find(query).toArray();
         res.send(bookings);
        
       })
       .post(async(req, res) => {
        
-        const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+        const ambookingCollection = client.db(process.env.DB).collection('ambooking');
         const booking = req.body;
         console.log(booking);
         const query={treatment:booking.treatment,date:booking.date, patient:booking.patient};
-        const exists = await hospitaldoctorsbookingCollection.findOne(query);
+        const exists = await ambookingCollection.findOne(query);
         if(exists){
             return res.send({success:false,booking:exists});
         }
-        const result = await hospitaldoctorsbookingCollection.insertOne(booking);
+        const result = await ambookingCollection.insertOne(booking);
        return res.send({success:true,result});
       });
 
@@ -78,9 +78,9 @@ async function run(){
       .route("/:id")
       .get(async(req, res) => {
         const id = req.params.id;
-        const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+        const ambookingCollection = client.db(process.env.DB).collection('ambooking');
         const query = {_id:ObjectId(id)};
-        const doctor = await hospitaldoctorsbookingCollection.findOne(query);
+        const doctor = await ambookingCollection.findOne(query);
         res.send(doctor);
       })
       
@@ -89,15 +89,15 @@ async function run(){
         console.log(id);
         console.log(req.body);
         const query = { _id: ObjectId(id) };
-        const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
-        let doctor = await hospitaldoctorsbookingCollection.findOne(query);
+        const ambookingCollection = client.db(process.env.DB).collection('ambooking');
+        let doctor = await ambookingCollection.findOne(query);
         console.log(doctor);      
         doctor = {...doctor, ...req.body};
-        const result = await hospitaldoctorsbookingCollection.updateOne(
+        const result = await ambookingCollection.updateOne(
           { _id: ObjectId(id) },
           { $set: doctor }
         );
-        const newResult = await hospitaldoctorsbookingCollection.findOne(query);
+        const newResult = await ambookingCollection.findOne(query);
         res.send(newResult);
       });
   }finally{

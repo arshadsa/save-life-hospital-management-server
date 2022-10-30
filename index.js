@@ -3,18 +3,19 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bodyParser = require('body-parser')
 const crypto = require('crypto')
-
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const SSLCommerzPayment = require('sslcommerz')
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 const doctors = require("./routes/doctors");
 const doctor = require("./routes/doctor");
 const nurse = require('./routes/nurse')
 const staff = require('./routes/staff')
-
+const ambulance = require("./routes/ambulance");
 const pharmacy = require("./routes/pharmacy");
 const lab = require("./routes/lab");
-
+const ambooking = require("./routes/ambooking");
 const medicine = require("./routes/Medicine")
 const blogs = require("./routes/blogs");
 const booking = require("./routes/booking");
@@ -41,8 +42,9 @@ app.use("/blogs", blogs);
 app.use("/bookingdoctors", booking);
 app.use("/news", news);
 app.use("/hospitaldoctorsbooking", hospitaldoctorsbooking);
-
+app.use("/ambulance", ambulance);
 app.use("/medicine" , medicine);
+app.use("/ambooking" , ambooking);
 // app.use("/available" , available);
 
 
@@ -112,8 +114,77 @@ async function run() {
 
 // booking appointment by anik 
 
+// payment part 
+// app.patch('/hospitaldoctorsbooking/:id', async(req,res)=>{
+//   const paymentCollection = client.db(process.env.DB).collection('payments');
+//   const id = req.params.id;
+//   const payment = req.body;
+//   const filter = {_id:ObjectId(id)};
+//   const updatedDoc = {
+//       $set:{
+//         paid:true,
+//         transactionId:payment.transactionId
+//       }
+//   }
+//   const result = await paymentCollection.insertOne(payment);
+//   const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+//   const updatedbooking = await hospitaldoctorsbookingCollection.updateOne(filter,updatedDoc);
+//   res.send(updatedDoc);
+// })
 
 
+
+
+
+
+//sslcommerz init
+app.get('/init', (req, res) => {
+  const data = {
+      total_amount: 100,
+      currency: 'EUR',
+      tran_id: 'REF123',
+      success_url: 'http://localhost:5000/success',
+      fail_url: 'http://yoursite.com/fail',
+      cancel_url: 'http://yoursite.com/cancel',
+      ipn_url: 'http://yoursite.com/ipn',
+      shipping_method: 'Courier',
+      product_name: 'Computer.',
+      product_category: 'Electronic',
+      product_profile: 'general',
+      cus_name: 'Customer Name',
+      cus_email: 'cust@yahoo.com',
+      cus_add1: 'Dhaka',
+      cus_add2: 'Dhaka',
+      cus_city: 'Dhaka',
+      cus_state: 'Dhaka',
+      cus_postcode: '1000',
+      cus_country: 'Bangladesh',
+      cus_phone: '01711111111',
+      cus_fax: '01711111111',
+      ship_name: 'Customer Name',
+      ship_add1: 'Dhaka',
+      ship_add2: 'Dhaka',
+      ship_city: 'Dhaka',
+      ship_state: 'Dhaka',
+      ship_postcode: 1000,
+      ship_country: 'Bangladesh',
+      multi_card_name: 'mastercard',
+      value_a: 'ref001_A',
+      value_b: 'ref002_B',
+      value_c: 'ref003_C',
+      value_d: 'ref004_D'
+  };
+  const sslcommer = new SSLCommerzPayment(process.env.STORE_ID, process.env.STORE_PASS,false) //true for live default false for sandbox
+  sslcommer.init(data).then(data => {
+      //process the response that got from sslcommerz 
+      //https://developer.sslcommerz.com/doc/v4/#returned-parameters
+      res.redirect(data.GatewayPageURL);
+  });
+})
+app.post('/success', async(req,res)=>{
+  console.log(req.body)
+  res.status(200).json(req.body)
+})
 
 app.get('/available', async(req,res) => {
   const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
