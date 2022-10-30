@@ -24,7 +24,7 @@ const news = require("./routes/news");
 const hospitaldoctorsbooking = require("./routes/hospitaldoctorsbooking")
 // const available = require("./routes/available");
 const app = express();
-
+// 
 // middlewares
 app.use(cors());
 app.use(express.json());
@@ -46,8 +46,32 @@ app.use("/ambulance", ambulance);
 app.use("/medicine" , medicine);
 app.use("/ambooking" , ambooking);
 // app.use("/available" , available);
+app.use("/medicine", medicine);
+// socket io
+const server = require("http").createServer(app);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+io.on("connection", (socket) => {
+  socket.emit("me", socket.id);
+  app.use("/medicine", medicine);
+  // app.use("/available" , available);
 
+  socket.on("disconnect", () => {
+    socket.broadcast.emit("callEnded")
+  });
 
+  socket.on("callUser", ({ userToCall, signalData, from, name }) => {
+    io.to(userToCall).emit("callUser", { signal: signalData, from, name });
+  });
+
+  socket.on("answerCall", (data) => {
+    io.to(data.to).emit("callAccepted", data.signal)
+  });
+});
 
 
 
@@ -81,7 +105,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    
+   
     app.post('/zoom', (req, res) => {
       const iat = Math.round((new Date().getTime() - 30000) / 1000)
       const exp = iat + 60 * 60 * 2
@@ -208,7 +232,10 @@ app.get('/available', async(req,res) => {
   res.send(services);
 })
 
-
+    // const productsCollection = client
+    //   .db(process.env.DB)
+    //   .collection(process.env.COLLECTION);
+    // const usersCollection = client.db(process.env.DB).collection("users");
     // Blood Doner Posting to Database
     app.post('/bloodDoner', async (req, res) => {
       const donerInfo = req.body
@@ -360,8 +387,8 @@ app.get('/available', async(req,res) => {
     app.post("/api/medicines", async (req, res) => {
       const newMedicine = req.body;
       const medicinesCollection = client.db(process.env.DB).collection('medicine');
-      const result = await medicinesCollection.insertOne(newMedicines);
-      res.send(result);
+      const result = await medicinesCollection.insertOne(newMedicine);
+      res.send({ result });
     });
 
     // UPDATE medicine Info
@@ -480,3 +507,5 @@ app.get("/hero", (req, res) => {
 app.listen(port, () => {
   console.log("Listening to port", port);
 });
+
+server.listen(8000, () => console.log("server is running on port 8000"))
