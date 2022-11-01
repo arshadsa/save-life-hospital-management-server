@@ -51,7 +51,7 @@ app.use("/medicine", medicine);
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
   cors: {
-    origin: "*",
+    origin: "https://hospital-management-syst-79467.web.app/",
     methods: ["GET", "POST"]
   }
 });
