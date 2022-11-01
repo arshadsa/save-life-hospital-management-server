@@ -51,9 +51,9 @@ const io = require("socket.io")(server, {
     methods: ["GET", "POST"]
   }
 });
+// app.use("/medicine", medicine);
 io.on("connection", (socket) => {
   socket.emit("me", socket.id);
-  app.use("/medicine", medicine);
   // app.use("/available" , available);
 
 
