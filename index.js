@@ -508,4 +508,4 @@ app.listen(port, () => {
   console.log("Listening to port", port);
 });
 
-server.listen(8000, () => console.log("server is running on por 8000"))
+server.listen(process.env.PORT || 8000, () => console.log("server is running on port 8000"))
