@@ -5,8 +5,10 @@ const bodyParser = require('body-parser')
 const crypto = require('crypto')
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { RtcTokenBuilder, RtmTokenBuilder, RtcRole, RtmRole } = require('agora-access-token')
 const SSLCommerzPayment = require('sslcommerz')
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = require("stripe")('sk_test_51L1c26AQe13D7JV445RLBZTVrVHrVl6aC4EeaLlsTVOGhvgwxoh5YxiRKKYzrcozo7mvFdLRrR0uwiU3CAeRLe8800O5amBNFk');
+// const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 const doctors = require("./routes/doctors");
 const doctor = require("./routes/doctor");
@@ -47,32 +49,61 @@ app.use("/medicine", medicine);
 app.use("/ambooking", ambooking);
 // app.use("/available" , available);
 app.use("/medicine", medicine);
-// socket io
-const server = require("http").createServer(app);
-const io = require("socket.io")(server, {
-  cors: {
-    origin: "https://hospital-management-syst-79467.web.app/",
-    methods: ["GET", "POST"]
-  }
+// Video call feature with agora io
+const nocache = (req, resp, next) => {
+  resp.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  resp.header('Expires', '-1');
+  resp.header('Pragma', 'no-cache');
+  next();
+};
+const generateAccessToken = (req, resp) => {
+  resp.header('Access-Control-Allow-Origin', '*');
+  const channelName = req.query.channelName;
+  // if (!channelName) {
+  //     return resp.status(500).json({ 'error': 'channel is required' });
+  // }
+  const uid = Math.floor(Math.random() * 100000);
+  const role = RtcRole.PUBLISHER;
+  const APP_ID = "dd59321650a748728c748a7eb21637ff";
+  const APP_CERTIFICATE = "2e670a5f42124586a8eef124d09b7fe4";
+  const expirationTimeInSeconds = 3600
+  const currentTimestamp = Math.floor(Date.now() / 1000)
+  const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
+  console.log("time", privilegeExpiredTs)
+  console.log("role", role);
+  console.log("name", channelName)
+  const token = RtcTokenBuilder.buildTokenWithUid(APP_ID, APP_CERTIFICATE, channelName, 0, role);
+  // console.log(token);
+  // console.log("006dd59321650a748728c748a7eb21637ffIABOfrB4US9ua82m4+EJ6+otN8A+EJliMgHaHD6QPVRcBAx+f9hPMNz+EAAccuAgybhmYwEAAQAAAAAA" === "")
+  return resp.json({ 'token': token });
+};
+
+app.get('/get-token', nocache, generateAccessToken);
+
+// Payment Integration through stripe
+// This is your test secret API key.
+const calculateOrderAmount = (items) => {
+  // Replace this constant with a calculation of the order's amount
+  // Calculate the order total on the server to prevent
+  // people from directly manipulating the amount on the client
+  return 1400;
+};
+app.post("/create-payment-intent", async (req, res) => {
+  const { items } = req.body;
+
+  // Create a PaymentIntent with the order amount and currency
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: calculateOrderAmount(items),
+    currency: "usd",
+    automatic_payment_methods: {
+      enabled: true,
+    },
+  });
+
+  res.send({
+    clientSecret: paymentIntent.client_secret,
+  });
 });
-// app.use("/medicine", medicine);
-io.on("connection", (socket) => {
-  socket.emit("me", socket.id);
-  // app.use("/available" , available);
-
-  socket.on("disconnect", () => {
-    socket.broadcast.emit("callEnded")
-  });
-
-  socket.on("callUser", ({ userToCall, signalData, from, name }) => {
-    io.to(userToCall).emit("callUser", { signal: signalData, from, name });
-  });
-
-  socket.on("answerCall", (data) => {
-    io.to(data.to).emit("callAccepted", data.signal)
-  });
-});
-
 
 
 function verifyJWT(req, res, next) {
@@ -508,4 +539,3 @@ app.listen(port, () => {
   console.log("Listening to port", port);
 });
 
-server.listen(8000, () => console.log("server is running on port 8000"))
