@@ -82,29 +82,44 @@ app.get('/get-token', nocache, generateAccessToken);
 
 // Payment Integration through stripe
 // This is your test secret API key.
-const calculateOrderAmount = (items) => {
-  // Replace this constant with a calculation of the order's amount
-  // Calculate the order total on the server to prevent
-  // people from directly manipulating the amount on the client
-  return 1400;
-};
 app.post("/create-payment-intent", async (req, res) => {
-  const { items } = req.body;
-
+  const { id } = req.body;
+  const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+  const query = { _id: ObjectId(id) };
+  const service = await hospitaldoctorsbookingCollection.findOne(query);
   // Create a PaymentIntent with the order amount and currency
+  console.log("service?.fees", service?.fees)
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: calculateOrderAmount(items),
+    amount: service?.fees * 100,
     currency: "usd",
     automatic_payment_methods: {
       enabled: true,
     },
   });
-
   res.send({
     clientSecret: paymentIntent.client_secret,
   });
 });
-
+app.put("/updatepayment", async (req, res) => {
+  const { serviceId, paymentStatus } = req.body;
+  const database = client.db(`${process.env.DB}`);
+  const appointment = database.collection("hospitaldoctorsbooking");
+  // create a filter for a movie to update
+  const filter = { _id: ObjectId(serviceId) };
+  // this option instructs the method to create a document if no documents match the filter
+  const options = { upsert: true };
+  // create a document that sets the plot of the movie
+  const updateDoc = {
+    $set: {
+      paymentStatus: `paid`,
+    },
+  };
+  const result = await appointment.updateOne(filter, updateDoc, options);
+  res.send(result);
+  // console.log(
+  //   `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,
+  // );
+});
 
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -137,35 +152,6 @@ async function run() {
   try {
     await client.connect();
 
-    app.post('/zoom', (req, res) => {
-      const iat = Math.round((new Date().getTime() - 30000) / 1000)
-      const exp = iat + 60 * 60 * 2
-
-      const oHeader = { alg: 'HS256', typ: 'JWT' }
-
-      const oPayload = {
-        app_key: process.env.ZOOM_VIDEO_SDK_KEY,
-        tpc: 'testing',
-        role_type: 1,
-        // user_identity: req.body.userIdentity,
-        // session_key: req.body.sessionKey,
-        version: 1,
-        iat: iat,
-        exp: exp,
-        meetingNumber: 1234,
-        userEmail: '',
-        passWord: '1234',
-        leaveUrl: 'http://localhost:3000/zoom-meeting'
-      }
-
-      const sHeader = JSON.stringify(oHeader)
-      const sPayload = JSON.stringify(oPayload)
-      const signature = KJUR.jws.JWS.sign('HS256', sHeader, sPayload, process.env.ZOOM_VIDEO_SDK_SECRET)
-
-      res.json({
-        signature: signature
-      })
-    })
 
     // booking appointment by anik 
 
