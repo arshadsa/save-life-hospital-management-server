@@ -136,7 +136,87 @@ function verifyJWT(req, res, next) {
     next();
   });
 }
+// ------------------------------------------------------
+// ------------------------------------
+// ------------------------------------
+// -------
+// Dynamic Date Making Function Making Function
+const moment = require('moment');
+let now = moment().format('L');
+console.log("current date changes everyday", now)
+const availableSlots = ["08.00 AM - 08.30 AM",
+  "08.30 AM - 09.00 AM",
+  "09.00 AM - 9.30 AM",
+  "09.30 AM - 10.00 AM",
+  "10.00 AM - 10.30 AM",
+  "10.30 AM - 11.00 AM",
+  "11.00 AM - 11.30 PM",
+  "11.30 AM - 12.00 PM",
+  "4.00 PM - 4.30 PM",
+  "4.30 PM - 5.00 PM",
+  "5.00 PM - 5.30 PM",
+  "5.30 PM - 6.00 PM",
+  "6.00 PM - 6.30 PM",
+  "6.30 PM - 7.00 PM",
+  "7.00 PM - 7.30 PM"]
+// console.log(day === now);
+console.log(now); //is a type string
+let day = moment("2022-11-18").format('L');
+console.log(day);
+const DynamicDate = async () => {
+  // console.log("day inside function", day);
+  if (day !== now) {
+    console.log("function running");
+    const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
+    const query = {}
+    const cursor = hospitaldoctorsCollection.find(query);
+    const doctors = await cursor.toArray();
+    for (let i = 0; i < doctors.length; i++) {
+      const doctor = doctors[i];  //will be an object
+      const doctorId = doctor._id;
+      let doctorAvialableSlot = doctor.availableSlots; //will be an object of an doctor object
+      delete doctorAvialableSlot[day];
+      // plus a date now then do another 
+      var new_date = moment(day).add(5, "day");
+      var day1 = new_date.format('DD');
+      var month = new_date.format('MM');
+      var year = new_date.format('YYYY');
+      // console.log(new_date)
+      let ss = month + '/' + day1 + '/' + year;
+      doctorAvialableSlot[ss] = availableSlots;
+      const filter = { _id: ObjectId(doctorId) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: { availableSlots: doctorAvialableSlot }
+      };
+      const result = await hospitaldoctorsCollection.updateOne(filter, updateDoc, options);
+    }
+    // console.log(doctors);
+    day = moment(now).format('L');
+    console.log("after reassigning", day);
+  }
+}
+setInterval(DynamicDate, 20000)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ------------------------------------------------------
+// ------------------------------------
+// ------------------------------------
+// -------
 // const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@products.q5pma.mongodb.net/${process.env.DB}?retryWrites=true&w=majority`;
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.k6jd9d0.mongodb.net/${process.env.DB}`;
 
