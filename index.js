@@ -161,7 +161,7 @@ const availableSlots = ["08.00 AM - 08.30 AM",
   "7.00 PM - 7.30 PM"]
 // console.log(day === now);
 console.log(now); //is a type string
-let day = moment("2022-11-18").format('L');
+let day = moment("2022-11-20").format('L');
 console.log(day);
 const DynamicDate = async () => {
   // console.log("day inside function", day);
@@ -200,7 +200,18 @@ setInterval(DynamicDate, 20000)
 
 
 
-
+// Update the doctor avaiale slots
+app.put("/updatedoctoravailableslots", async (req, res) => {
+  const id = req.headers.id;
+  const date = req.query.date;
+  const doctor = req.body;
+  const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
+  // delete doctor[id]
+  const keyDate = availableSlots[date]
+  const filter = { _id: ObjectId(id) };
+  const result = await hospitaldoctorsCollection.replaceOne(filter, doctor);
+  res.send(result);
+})
 
 
 
