@@ -161,7 +161,7 @@ const availableSlots = ["08.00 AM - 08.30 AM",
   "7.00 PM - 7.30 PM"]
 // console.log(day === now);
 console.log(now); //is a type string
-let day = moment("2022-11-19").format('L');
+let day = moment("2022-11-20").format('L');
 console.log(day);
 const DynamicDate = async () => {
   // console.log("day inside function", day);
@@ -196,7 +196,7 @@ const DynamicDate = async () => {
     console.log("after reassigning", day);
   }
 }
-setInterval(DynamicDate, 20000)
+// setInterval(DynamicDate, 20000)
 
 
 
@@ -204,17 +204,27 @@ setInterval(DynamicDate, 20000)
 app.put("/updatedoctoravailableslots", async (req, res) => {
   const id = req.headers.id;
   const date = req.query.date;
+  const email = req.query.email;
   const doctor = req.body;
+  console.log("body updatedoctoravailableslots", doctor)
   const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
   // delete doctor[id]
   const keyDate = availableSlots[date]
-  const filter = { _id: ObjectId(id) };
+  const filter = { doctorEmail: email };
   const result = await hospitaldoctorsCollection.replaceOne(filter, doctor);
   res.send(result);
 })
 
 
-
+// Get doctor's appointment list
+app.get("/hospitaldoctorsbooking/doctor", async (req, res) => {
+  ///doctors
+  const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+  const doctor = req.query.patient;
+  const query = { doctorEmail: doctor };
+  const bookings = await hospitaldoctorsbookingCollection.find(query).toArray();
+  res.send(bookings);
+})
 
 
 

@@ -17,7 +17,7 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-router.use(function(req, res, next) {
+router.use(function (req, res, next) {
   console.log(req.url, "@", Date.now());
   next();
 });
@@ -36,8 +36,8 @@ function verifyJWT(req, res, next) {
     next();
   });
 }
-async function run(){
-  try{
+async function run() {
+  try {
     await client.connect();
     router
       .route("/")
@@ -51,48 +51,48 @@ async function run(){
       // })
 
 
-      .get(async(req, res) => {
+      .get(async (req, res) => {
         ///doctors
         const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
         const patient = req.query.patient;
-        const query = {patient:patient};
+        const query = { patient: patient };
         const bookings = await hospitaldoctorsbookingCollection.find(query).toArray();
         res.send(bookings);
-       
+
       })
-      .post(async(req, res) => {
-       
+      .post(async (req, res) => {
+
         const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
         const booking = req.body;
         console.log(booking);
-        const query={treatment:booking.treatment,date:booking.date, patient:booking.patient};
+        const query = { treatment: booking.treatment, date: booking.date, patient: booking.patient };
         const exists = await hospitaldoctorsbookingCollection.findOne(query);
-        if(exists){
-            return res.send({success:false,booking:exists});
+        if (exists) {
+          return res.send({ success: false, booking: exists });
         }
         const result = await hospitaldoctorsbookingCollection.insertOne(booking);
-       return res.send({success:true,result});
+        return res.send({ success: true, result });
       });
 
     router
       .route("/:id")
-      .get(async(req, res) => {
+      .get(async (req, res) => {
         const id = req.params.id;
         const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
-        const query = {_id:ObjectId(id)};
+        const query = { _id: ObjectId(id) };
         const doctor = await hospitaldoctorsbookingCollection.findOne(query);
         res.send(doctor);
       })
-      
-      .post(async(req, res) => {
+
+      .post(async (req, res) => {
         const id = req.params.id;
         console.log(id);
         console.log(req.body);
         const query = { _id: ObjectId(id) };
         const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
         let doctor = await hospitaldoctorsbookingCollection.findOne(query);
-        console.log(doctor);      
-        doctor = {...doctor, ...req.body};
+        console.log(doctor);
+        doctor = { ...doctor, ...req.body };
         const result = await hospitaldoctorsbookingCollection.updateOne(
           { _id: ObjectId(id) },
           { $set: doctor }
@@ -100,7 +100,7 @@ async function run(){
         const newResult = await hospitaldoctorsbookingCollection.findOne(query);
         res.send(newResult);
       });
-  }finally{
+  } finally {
 
   }
 }
