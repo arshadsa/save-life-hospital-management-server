@@ -56,12 +56,9 @@ const nocache = (req, resp, next) => {
   resp.header('Pragma', 'no-cache');
   next();
 };
-const generateAccessToken = (req, resp) => {
+const generateAccessToken = async (req, resp) => {
   resp.header('Access-Control-Allow-Origin', '*');
   const channelName = req.query.channelName;
-  // if (!channelName) {
-  //     return resp.status(500).json({ 'error': 'channel is required' });
-  // }
   const uid = Math.floor(Math.random() * 100000);
   const role = RtcRole.PUBLISHER;
   const APP_ID = "dd59321650a748728c748a7eb21637ff";
@@ -73,12 +70,22 @@ const generateAccessToken = (req, resp) => {
   console.log("role", role);
   console.log("name", channelName)
   const token = RtcTokenBuilder.buildTokenWithUid(APP_ID, APP_CERTIFICATE, channelName, 0, role);
-  // console.log(token);
-  // console.log("006dd59321650a748728c748a7eb21637ffIABOfrB4US9ua82m4+EJ6+otN8A+EJliMgHaHD6QPVRcBAx+f9hPMNz+EAAccuAgybhmYwEAAQAAAAAA" === "")
+  // -----------------Token posting to database-----------------
+  const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+  let appointment = await hospitaldoctorsbookingCollection.findOne({ _id: ObjectId(req.params.id) });
+  appointment = { ...appointment, token: token, channelName: channelName }
+  await hospitaldoctorsbookingCollection.updateOne({ _id: ObjectId(req.params.id) }, { $set: appointment });
   return resp.json({ 'token': token });
 };
 
 app.get('/get-token', nocache, generateAccessToken);
+
+app.post('/get-tokenPatient', async (req, res) => {
+  const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
+  const id = req.query.id;
+  const appointment = await hospitaldoctorsbookingCollection.findOne({ _id: ObjectId(id) });
+  req.send(appointment);
+})
 
 // Payment Integration through stripe
 // This is your test secret API key.
@@ -144,6 +151,10 @@ function verifyJWT(req, res, next) {
 const moment = require('moment');
 let now = moment().format('L');
 console.log("current date changes everyday", now)
+let startdate = moment().subtract(1, "days").format('L');
+let enddate = moment().add(4, "days").format('L');
+console.log("start date", startdate)
+console.log("end date", enddate);
 const availableSlots = ["08.00 AM - 08.30 AM",
   "08.30 AM - 09.00 AM",
   "09.00 AM - 9.30 AM",
@@ -159,41 +170,36 @@ const availableSlots = ["08.00 AM - 08.30 AM",
   "6.00 PM - 6.30 PM",
   "6.30 PM - 7.00 PM",
   "7.00 PM - 7.30 PM"]
-// console.log(day === now);
+
 console.log(now); //is a type string
-let day = moment("2022-11-21").format('L');
-console.log(day);
+
 const DynamicDate = async () => {
   // console.log("day inside function", day);
-  if (day !== now) {
-    console.log("function running");
-    const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
-    const query = {}
-    const cursor = hospitaldoctorsCollection.find(query);
-    const doctors = await cursor.toArray();
-    for (let i = 0; i < doctors.length; i++) {
-      const doctor = doctors[i];  //will be an object
-      const doctorId = doctor._id;
-      let doctorAvialableSlot = doctor.availableSlots; //will be an object of an doctor object
-      delete doctorAvialableSlot[day];
+  console.log("function running");
+  const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
+  const query = {}
+  const cursor = hospitaldoctorsCollection.find(query);
+  const doctors = await cursor.toArray();
+  for (let i = 0; i < doctors.length; i++) {
+    const doctor = doctors[i];  //will be an object
+    const doctorId = doctor._id;
+    let doctorAvialableSlot = doctor.availableSlots; //will be an object of an doctor object
+    // console.log(doctorAvialableSlot[now])
+    if (doctorAvialableSlot[startdate] !== undefined) {
+      console.log(true);
+      delete doctorAvialableSlot[startdate];
       // plus a date now then do another 
-      var new_date = moment(day).add(5, "day");
-      var day1 = new_date.format('DD');
-      var month = new_date.format('MM');
-      var year = new_date.format('YYYY');
-      // console.log(new_date)
-      let ss = month + '/' + day1 + '/' + year;
-      doctorAvialableSlot[ss] = availableSlots;
+      doctorAvialableSlot[enddate] = availableSlots;
       const filter = { _id: ObjectId(doctorId) };
       const options = { upsert: true };
       const updateDoc = {
         $set: { availableSlots: doctorAvialableSlot }
       };
       const result = await hospitaldoctorsCollection.updateOne(filter, updateDoc, options);
+
+    } else {
+      console.log("All slot are up to date");
     }
-    // console.log(doctors);
-    day = moment(now).format('L');
-    console.log("after reassigning", day);
   }
 }
 setInterval(DynamicDate, 20000)
