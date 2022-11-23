@@ -149,10 +149,10 @@ function verifyJWT(req, res, next) {
 // -------
 // Dynamic Date Making Function Making Function
 const moment = require('moment');
-let now = moment().format('L');
+let now = moment().add(1, "days").format('L');
 console.log("current date changes everyday", now)
-let startdate = moment().subtract(1, "days").format('L');
-let enddate = moment().add(4, "days").format('L');
+let startdate = moment().add(1, "days").subtract(1, "days").format('L');
+let enddate = moment().add(5, "days").format('L');
 console.log("start date", startdate)
 console.log("end date", enddate);
 const availableSlots = ["08.00 AM - 08.30 AM",
