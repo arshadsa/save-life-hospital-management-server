@@ -202,7 +202,7 @@ const DynamicDate = async () => {
     }
   }
 }
-setInterval(DynamicDate, 50000)
+
 
 
 
@@ -639,6 +639,7 @@ app.get("/hero", (req, res) => {
 });
 
 app.listen(port, () => {
+  setInterval(DynamicDate, 50000)
   console.log("Listening to port", port);
 });
 
