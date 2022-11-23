@@ -173,7 +173,7 @@ const availableSlots = ["08.00 AM - 08.30 AM",
 
 console.log(now); //is a type string
 
-const DynamicDate = async () => {
+const DynamicDate = async (req, res) => {
   // console.log("day inside function", day);
   console.log("function running");
   const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
@@ -201,6 +201,7 @@ const DynamicDate = async () => {
       console.log("All slot are up to date");
     }
   }
+  res.send({ "dynamic date done": 'done' });
 }
 setInterval(DynamicDate, 50000)
 
