@@ -171,7 +171,7 @@ const availableSlots = ["08.00 AM - 08.30 AM",
   "6.30 PM - 7.00 PM",
   "7.00 PM - 7.30 PM"]
 
-console.log(now); //is a type string
+console.log(now); //is a type strin
 
 const DynamicDate = async () => {
   // console.log("day inside function", day);
