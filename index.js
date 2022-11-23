@@ -202,7 +202,7 @@ const DynamicDate = async () => {
     }
   }
 }
-setInterval(DynamicDate, 20000)
+setInterval(DynamicDate, 50000)
 
 
 
@@ -392,6 +392,7 @@ async function run() {
       const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "1d",
       });
+      DynamicDate()
       res.send({ accessToken });
     });
     // All user post to a Database
@@ -399,6 +400,7 @@ async function run() {
       const user = req.body
       const usersCollection = client.db(process.env.DB).collection("users");
       const result = await usersCollection.insertOne(user);
+      DynamicDate()
       res.send(result);
     })
     // Search for a specific user from the DB
@@ -409,6 +411,7 @@ async function run() {
       const query = { email: email };
       const usersCollection = client.db(process.env.DB).collection("users");
       const user = await usersCollection.findOne(query);
+      DynamicDate()
       console.log(user);
       if (user === null) {
         res.send({ "text": "No user Found" })
