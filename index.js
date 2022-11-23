@@ -269,7 +269,7 @@ async function run() {
   try {
     await client.connect();
 
-
+    setInterval(DynamicDate, 50000)
     // booking appointment by anik 
 
     // payment part 
@@ -631,7 +631,6 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  setInterval(DynamicDate, 50000)
   res.send("Running Products Server");
 });
 
