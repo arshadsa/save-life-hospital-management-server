@@ -631,6 +631,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
+  setInterval(DynamicDate, 50000)
   res.send("Running Products Server");
 });
 
@@ -639,7 +640,6 @@ app.get("/hero", (req, res) => {
 });
 
 app.listen(port, () => {
-  setInterval(DynamicDate, 50000)
   console.log("Listening to port", port);
 });
 
