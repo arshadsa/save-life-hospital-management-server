@@ -184,7 +184,7 @@ const DynamicDate = async () => {
     const doctor = doctors[i];  //will be an object
     const doctorId = doctor._id;
     let doctorAvialableSlot = doctor.availableSlots; //will be an object of an doctor object
-    // console.log(doctorAvialableSlot[now])
+    // console.log(doctorAvialableSlot["11/27/2022"])
     if (doctorAvialableSlot[startdate] !== undefined) {
       console.log(true);
       delete doctorAvialableSlot[startdate];
@@ -203,7 +203,7 @@ const DynamicDate = async () => {
   }
 }
 
-
+setInterval(DynamicDate, 50000)
 
 
 // Update the doctor avaiale slots
@@ -268,8 +268,6 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-
-    setInterval(DynamicDate, 50000)
     // booking appointment by anik 
 
     // payment part 
