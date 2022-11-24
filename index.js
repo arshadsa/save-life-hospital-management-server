@@ -202,7 +202,7 @@ const DynamicDate = async () => {
       const result = await hospitaldoctorsCollection.updateOne(filter, updateDoc, options);
 
     } else {
-      console.log("All slot are up to date");
+      console.log("All slot are up to dat");
     }
   }
 }
