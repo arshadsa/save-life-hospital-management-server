@@ -148,11 +148,11 @@ function verifyJWT(req, res, next) {
 // ------------------------------------
 // -------
 // Dynamic Date Making Function Making Function
-const moment = require('moment');
-let now = moment().add(1, "days").format('L');
+const moment = require('moment-timezone');
+let now = moment.tz('Bangladesh/Dhaka').format('L');
 console.log("current date changes everyday", now)
-let startdate = moment().add(1, "days").subtract(1, "days").format('L');
-let enddate = moment().add(5, "days").format('L');
+let startdate = moment.tz('Bangladesh/Dhaka').subtract(1, "days").format('L');
+let enddate = moment.tz('Bangladesh/Dhaka').add(4, "days").format('L');
 console.log("start date", startdate)
 console.log("end date", enddate);
 const availableSlots = ["08.00 AM - 08.30 AM",
@@ -172,6 +172,10 @@ const availableSlots = ["08.00 AM - 08.30 AM",
   "7.00 PM - 7.30 PM"]
 
 console.log(now); //is a type strin
+// var moment = require('moment-timezone');
+// moment().tz("America/Los_Angeles").format();
+var zone = moment.tz('Bangladesh/Dhaka').format("l");
+console.log("zone time", zone)
 
 const DynamicDate = async () => {
   // console.log("day inside function", day);
@@ -203,7 +207,7 @@ const DynamicDate = async () => {
   }
 }
 
-setInterval(DynamicDate, 50000)
+// setInterval(DynamicDate, 50000)
 
 
 // Update the doctor avaiale slots
