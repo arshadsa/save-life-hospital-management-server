@@ -207,7 +207,7 @@ const DynamicDate = async () => {
   }
 }
 
-// setInterval(DynamicDate, 50000)
+setInterval(DynamicDate, 50000)
 
 
 // Update the doctor avaiale slots
