@@ -149,10 +149,10 @@ function verifyJWT(req, res, next) {
 // -------
 // Dynamic Date Making Function Making Function
 const moment = require('moment-timezone');
-let now = moment.tz('Bangladesh/Dhaka').format('L');
+let now = moment.tz('Asia/Dhaka').format('L');
 console.log("current date changes everyday", now)
-let startdate = moment.tz('Bangladesh/Dhaka').subtract(1, "days").format('L');
-let enddate = moment.tz('Bangladesh/Dhaka').add(4, "days").format('L');
+let startdate = moment.tz('Asia/Dhaka').subtract(1, "days").format('L');
+let enddate = moment.tz('Asia/Dhaka').add(4, "days").format('L');
 console.log("start date", startdate)
 console.log("end date", enddate);
 const availableSlots = ["08.00 AM - 08.30 AM",
