@@ -174,7 +174,7 @@ const availableSlots = ["08.00 AM - 08.30 AM",
 console.log(now); //is a type strin
 // var moment = require('moment-timezone');
 // moment().tz("America/Los_Angeles").format();
-var zone = moment.tz('Bangladesh/Dhaka').format("l");
+var zone = moment.tz('Asia/Dhaka').format("l");
 console.log("zone time", zone)
 
 const DynamicDate = async () => {
@@ -202,7 +202,7 @@ const DynamicDate = async () => {
       const result = await hospitaldoctorsCollection.updateOne(filter, updateDoc, options);
 
     } else {
-      console.log("All slot are up to dat");
+      console.log("All slot are up to date");
     }
   }
 }
