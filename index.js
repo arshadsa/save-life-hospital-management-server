@@ -149,12 +149,6 @@ function verifyJWT(req, res, next) {
 // -------
 // Dynamic Date Making Function Making Function
 const moment = require('moment-timezone');
-let now = moment.tz('Asia/Dhaka').format('L');
-console.log("current date changes everyday", now)
-let startdate = moment.tz('Asia/Dhaka').subtract(1, "days").format('L');
-let enddate = moment.tz('Asia/Dhaka').add(4, "days").format('L');
-console.log("start date", startdate)
-console.log("end date", enddate);
 const availableSlots = ["08.00 AM - 08.30 AM",
   "08.30 AM - 09.00 AM",
   "09.00 AM - 9.30 AM",
@@ -171,13 +165,19 @@ const availableSlots = ["08.00 AM - 08.30 AM",
   "6.30 PM - 7.00 PM",
   "7.00 PM - 7.30 PM"]
 
-console.log(now); //is a type strin
 // var moment = require('moment-timezone');
 // moment().tz("America/Los_Angeles").format();
-var zone = moment.tz('Asia/Dhaka').format("l");
-console.log("zone time", zone)
 
 const DynamicDate = async () => {
+  let now = moment.tz('Asia/Dhaka').format('L');
+  console.log("current date changes everyday", now)
+  let startdate = moment.tz('Asia/Dhaka').subtract(1, "days").format('L');
+  let enddate = moment.tz('Asia/Dhaka').add(4, "days").format('L');
+  var zone = moment.tz('Asia/Dhaka').format("l");
+  console.log("zone time", zone)
+  console.log("start date", startdate)
+  console.log("end date", enddate);
+  console.log(now); //is a type strin
   // console.log("day inside function", day);
   console.log("function running");
   const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
