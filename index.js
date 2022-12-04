@@ -59,6 +59,7 @@ const nocache = (req, resp, next) => {
 const generateAccessToken = async (req, resp) => {
   resp.header('Access-Control-Allow-Origin', '*');
   const channelName = req.query.channelName;
+
   const uid = Math.floor(Math.random() * 100000);
   const role = RtcRole.PUBLISHER;
   const APP_ID = "dd59321650a748728c748a7eb21637ff";
@@ -74,17 +75,20 @@ const generateAccessToken = async (req, resp) => {
   const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
   let appointment = await hospitaldoctorsbookingCollection.findOne({ _id: ObjectId(req.params.id) });
   appointment = { ...appointment, token: token, channelName: channelName }
-  await hospitaldoctorsbookingCollection.updateOne({ _id: ObjectId(req.params.id) }, { $set: appointment });
+  console.log("appointment when creating video call", appointment)
+  let updateAppointment = await hospitaldoctorsbookingCollection.updateOne({ _id: ObjectId(req.query.id) }, { $set: appointment });
+  console.log(updateAppointment);
   return resp.json({ 'token': token });
 };
 
 app.get('/get-token', nocache, generateAccessToken);
 
-app.post('/get-tokenPatient', async (req, res) => {
+app.get('/get-tokenPatient', async (req, res) => {
   const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
   const id = req.query.id;
   const appointment = await hospitaldoctorsbookingCollection.findOne({ _id: ObjectId(id) });
-  req.send(appointment);
+  console.log(appointment);
+  res.send(appointment);
 })
 
 // Payment Integration through stripe
@@ -208,7 +212,59 @@ const DynamicDate = async () => {
 }
 
 setInterval(DynamicDate, 50000)
-
+// doctor adding with current 5 days slot
+const doctorSlotAdding = (doctor) => {
+  let now = moment.tz('Asia/Dhaka').format('L');
+  let tempDoctor = doctor;
+  const availableSlots = ["08.00 AM - 08.30 AM",
+    "08.30 AM - 09.00 AM",
+    "09.00 AM - 9.30 AM",
+    "09.30 AM - 10.00 AM",
+    "10.00 AM - 10.30 AM",
+    "10.30 AM - 11.00 AM",
+    "11.00 AM - 11.30 PM",
+    "11.30 AM - 12.00 PM",
+    "4.00 PM - 4.30 PM",
+    "4.30 PM - 5.00 PM",
+    "5.00 PM - 5.30 PM",
+    "5.30 PM - 6.00 PM",
+    "6.00 PM - 6.30 PM",
+    "6.30 PM - 7.00 PM",
+    "7.00 PM - 7.30 PM"]
+  tempDoctor = { ...tempDoctor, availableSlots: {} }
+  delete tempDoctor.slots;
+  tempDoctor.availableSlots[now] = availableSlots;
+  for (i = 1; i <= 4; i++) {
+    let date = moment.tz('Asia/Dhaka').add(i, "days").format('L');
+    tempDoctor.availableSlots[date] = availableSlots;
+    // let doctorAvialableSlot = tempDoctor.availableSlots;
+    // doctorAvialableSlot[date] = availableSlots;
+  }
+  console.log(tempDoctor);
+  return tempDoctor;
+}
+// add doctor with slot
+app.get("/websitedoctors/findEmail", async (req, res) => {
+  const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
+  const email = req.query.email;
+  const query = { email: email };
+  const doctors = await hospitaldoctorsCollection.findOne(query);
+  // const doctors = await cursor.toArray();
+  console.log(doctors);
+  if (doctors === null) {
+    res.send({ "found": false });
+  } else {
+    res.send({ "found": true });
+  }
+})
+app.post("/websitedoctors", async (req, res) => {
+  const doctorsCollection = client.db(process.env.DB).collection("hospitaldoctors");
+  const newDoctor = req.body;
+  console.log(newDoctor);
+  let doctor = await doctorSlotAdding(newDoctor);
+  const result = await doctorsCollection.insertOne(doctor);
+  res.send(result);
+});
 
 // Update the doctor avaiale slots
 app.put("/updatedoctoravailableslots", async (req, res) => {
@@ -237,13 +293,16 @@ app.put("/updatedoctoravailableslots", async (req, res) => {
 
 
 // Get doctor's appointment list
-app.get("/hospitaldoctorsbooking/doctor", async (req, res) => {
+app.get("/doctorsbooking/doctor", async (req, res) => {
   ///doctors
   const hospitaldoctorsbookingCollection = client.db(process.env.DB).collection('hospitaldoctorsbooking');
-  const doctor = req.query.patient;
+  const doctor = req.query.doctoremail;
+  console.log("doctor email", doctor);
   const query = { doctorEmail: doctor };
-  const bookings = await hospitaldoctorsbookingCollection.find(query).toArray();
-  res.send(bookings);
+  const cursor = hospitaldoctorsbookingCollection.find(query);
+  const patients = await cursor.toArray();
+  console.log(patients);
+  res.send(patients);
 })
 
 
