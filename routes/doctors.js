@@ -14,6 +14,34 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+// doctor adding with current 5 days slot
+const moment = require('moment-timezone');
+
+const doctorSlotAdding = (doctor) => {
+  let now = moment.tz('Asia/Dhaka').format('L');
+  const availableSlots = ["08.00 AM - 08.30 AM",
+    "08.30 AM - 09.00 AM",
+    "09.00 AM - 9.30 AM",
+    "09.30 AM - 10.00 AM",
+    "10.00 AM - 10.30 AM",
+    "10.30 AM - 11.00 AM",
+    "11.00 AM - 11.30 PM",
+    "11.30 AM - 12.00 PM",
+    "4.00 PM - 4.30 PM",
+    "4.30 PM - 5.00 PM",
+    "5.00 PM - 5.30 PM",
+    "5.30 PM - 6.00 PM",
+    "6.00 PM - 6.30 PM",
+    "6.30 PM - 7.00 PM",
+    "7.00 PM - 7.30 PM"]
+  doctorAvialableSlot[now] = availableSlots;
+  for (i = 1; i <= 4; i++) {
+    let date = moment.tz('Asia/Dhaka').add(i, "days").format('L');
+    let doctorAvialableSlot = doctor.availableSlots;
+    doctorAvialableSlot[date] = availableSlots;
+  }
+  return doctor;
+}
 
 async function run() {
   ///doctors
@@ -30,16 +58,18 @@ async function run() {
         res.send(doctors);
       })
       .post(async (req, res) => {
+
         const newDoctor = req.body;
-        // console.log(newDoctor);
+        console.log(newDoctor);
+        doctorSlotAdding(newDoctor);
         const result = await doctorsCollection.insertOne(newDoctor);
         await res.send(result);
       });
-      
+
     router.route("/specialities").get(async (req, res) => {
       const specialityCollection = client.db(process.env.DB).collection("hospitaldoctors");
       const specialities = await specialityCollection.distinct("specialization");
-      
+
       await res.send(specialities);
     });
 
@@ -48,7 +78,7 @@ async function run() {
       const query = {};
       const cursor = await specialityDefCollection.find(query);
       const specialityDef = await cursor.toArray();
-      
+
       res.send(specialityDef);
     });
 
