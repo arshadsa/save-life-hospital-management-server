@@ -152,97 +152,97 @@ function verifyJWT(req, res, next) {
 // ------------------------------------
 // -------
 // Dynamic Date Making Function Making Function
-const moment = require('moment-timezone');
-const availableSlots = ["08.00 AM - 08.30 AM",
-  "08.30 AM - 09.00 AM",
-  "09.00 AM - 9.30 AM",
-  "09.30 AM - 10.00 AM",
-  "10.00 AM - 10.30 AM",
-  "10.30 AM - 11.00 AM",
-  "11.00 AM - 11.30 PM",
-  "11.30 AM - 12.00 PM",
-  "4.00 PM - 4.30 PM",
-  "4.30 PM - 5.00 PM",
-  "5.00 PM - 5.30 PM",
-  "5.30 PM - 6.00 PM",
-  "6.00 PM - 6.30 PM",
-  "6.30 PM - 7.00 PM",
-  "7.00 PM - 7.30 PM"]
+// const moment = require('moment-timezone');
+// const availableSlots = ["08.00 AM - 08.30 AM",
+//   "08.30 AM - 09.00 AM",
+//   "09.00 AM - 9.30 AM",
+//   "09.30 AM - 10.00 AM",
+//   "10.00 AM - 10.30 AM",
+//   "10.30 AM - 11.00 AM",
+//   "11.00 AM - 11.30 PM",
+//   "11.30 AM - 12.00 PM",
+//   "4.00 PM - 4.30 PM",
+//   "4.30 PM - 5.00 PM",
+//   "5.00 PM - 5.30 PM",
+//   "5.30 PM - 6.00 PM",
+//   "6.00 PM - 6.30 PM",
+//   "6.30 PM - 7.00 PM",
+//   "7.00 PM - 7.30 PM"]
 
 // var moment = require('moment-timezone');
 // moment().tz("America/Los_Angeles").format();
 
-const DynamicDate = async () => {
-  let now = moment.tz('Asia/Dhaka').format('L');
-  console.log("current date changes everyday", now)
-  let startdate = moment.tz('Asia/Dhaka').subtract(1, "days").format('L');
-  let enddate = moment.tz('Asia/Dhaka').add(4, "days").format('L');
-  var zone = moment.tz('Asia/Dhaka').format("l");
-  console.log("zone time", zone)
-  console.log("start date", startdate)
-  console.log("end date", enddate);
-  console.log(now); //is a type strin
-  // console.log("day inside function", day);
-  console.log("function running");
-  const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
-  const query = {}
-  const cursor = hospitaldoctorsCollection.find(query);
-  const doctors = await cursor.toArray();
-  for (let i = 0; i < doctors.length; i++) {
-    const doctor = doctors[i];  //will be an object
-    const doctorId = doctor._id;
-    let doctorAvialableSlot = doctor.availableSlots; //will be an object of an doctor object
-    // console.log(doctorAvialableSlot["11/27/2022"])
-    if (doctorAvialableSlot[startdate] !== undefined) {
-      console.log(true);
-      delete doctorAvialableSlot[startdate];
-      // plus a date now then do another 
-      doctorAvialableSlot[enddate] = availableSlots;
-      const filter = { _id: ObjectId(doctorId) };
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: { availableSlots: doctorAvialableSlot }
-      };
-      const result = await hospitaldoctorsCollection.updateOne(filter, updateDoc, options);
+// const DynamicDate = async () => {
+//   let now = moment.tz('Asia/Dhaka').format('L');
+//   console.log("current date changes everyday", now)
+//   let startdate = moment.tz('Asia/Dhaka').subtract(1, "days").format('L');
+//   let enddate = moment.tz('Asia/Dhaka').add(4, "days").format('L');
+//   var zone = moment.tz('Asia/Dhaka').format("l");
+//   console.log("zone time", zone)
+//   console.log("start date", startdate)
+//   console.log("end date", enddate);
+//   console.log(now); //is a type strin
+//   // console.log("day inside function", day);
+//   console.log("function running");
+//   const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
+//   const query = {}
+//   const cursor = hospitaldoctorsCollection.find(query);
+//   const doctors = await cursor.toArray();
+//   for (let i = 0; i < doctors.length; i++) {
+//     const doctor = doctors[i];  //will be an object
+//     const doctorId = doctor._id;
+//     let doctorAvialableSlot = doctor.availableSlots; //will be an object of an doctor object
+//     // console.log(doctorAvialableSlot["11/27/2022"])
+//     if (doctorAvialableSlot[startdate] !== undefined) {
+//       console.log(true);
+//       delete doctorAvialableSlot[startdate];
+//       // plus a date now then do another 
+//       doctorAvialableSlot[enddate] = availableSlots;
+//       const filter = { _id: ObjectId(doctorId) };
+//       const options = { upsert: true };
+//       const updateDoc = {
+//         $set: { availableSlots: doctorAvialableSlot }
+//       };
+//       const result = await hospitaldoctorsCollection.updateOne(filter, updateDoc, options);
 
-    } else {
-      console.log("All slot are up to date");
-    }
-  }
-}
+//     } else {
+//       console.log("All slot are up to date");
+//     }
+//   }
+// }
 
-setInterval(DynamicDate, 50000)
+// setInterval(DynamicDate, 50000)
 // doctor adding with current 5 days slot
-const doctorSlotAdding = (doctor) => {
-  let now = moment.tz('Asia/Dhaka').format('L');
-  let tempDoctor = doctor;
-  const availableSlots = ["08.00 AM - 08.30 AM",
-    "08.30 AM - 09.00 AM",
-    "09.00 AM - 9.30 AM",
-    "09.30 AM - 10.00 AM",
-    "10.00 AM - 10.30 AM",
-    "10.30 AM - 11.00 AM",
-    "11.00 AM - 11.30 PM",
-    "11.30 AM - 12.00 PM",
-    "4.00 PM - 4.30 PM",
-    "4.30 PM - 5.00 PM",
-    "5.00 PM - 5.30 PM",
-    "5.30 PM - 6.00 PM",
-    "6.00 PM - 6.30 PM",
-    "6.30 PM - 7.00 PM",
-    "7.00 PM - 7.30 PM"]
-  tempDoctor = { ...tempDoctor, availableSlots: {} }
-  delete tempDoctor.slots;
-  tempDoctor.availableSlots[now] = availableSlots;
-  for (i = 1; i <= 4; i++) {
-    let date = moment.tz('Asia/Dhaka').add(i, "days").format('L');
-    tempDoctor.availableSlots[date] = availableSlots;
-    // let doctorAvialableSlot = tempDoctor.availableSlots;
-    // doctorAvialableSlot[date] = availableSlots;
-  }
-  console.log(tempDoctor);
-  return tempDoctor;
-}
+// const doctorSlotAdding = (doctor) => {
+//   let now = moment.tz('Asia/Dhaka').format('L');
+//   let tempDoctor = doctor;
+//   const availableSlots = ["08.00 AM - 08.30 AM",
+//     "08.30 AM - 09.00 AM",
+//     "09.00 AM - 9.30 AM",
+//     "09.30 AM - 10.00 AM",
+//     "10.00 AM - 10.30 AM",
+//     "10.30 AM - 11.00 AM",
+//     "11.00 AM - 11.30 PM",
+//     "11.30 AM - 12.00 PM",
+//     "4.00 PM - 4.30 PM",
+//     "4.30 PM - 5.00 PM",
+//     "5.00 PM - 5.30 PM",
+//     "5.30 PM - 6.00 PM",
+//     "6.00 PM - 6.30 PM",
+//     "6.30 PM - 7.00 PM",
+//     "7.00 PM - 7.30 PM"]
+//   tempDoctor = { ...tempDoctor, availableSlots: {} }
+//   delete tempDoctor.slots;
+//   tempDoctor.availableSlots[now] = availableSlots;
+//   for (i = 1; i <= 4; i++) {
+//     let date = moment.tz('Asia/Dhaka').add(i, "days").format('L');
+//     tempDoctor.availableSlots[date] = availableSlots;
+//     // let doctorAvialableSlot = tempDoctor.availableSlots;
+//     // doctorAvialableSlot[date] = availableSlots;
+//   }
+//   console.log(tempDoctor);
+//   return tempDoctor;
+// }
 // add doctor with slot
 app.get("/websitedoctors/findEmail", async (req, res) => {
   const hospitaldoctorsCollection = client.db(process.env.DB).collection('hospitaldoctors');
